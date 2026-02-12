@@ -1,94 +1,42 @@
 import { NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export function middleware(request) {
-  const userId = request.cookies.get('userId')?.value;
-  const role = request.cookies.get('role')?.value;
-  const { pathname } = request.nextUrl;
+export async function middleware(request) {
+  const path = request.nextUrl.pathname;
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET
+  });
 
-  console.log('🔍 Middleware:', { pathname, userId, role });
+  // 🔴 DEBUG: LIHAT TOKEN
+  console.log("========== MIDDLEWARE ==========");
+  console.log("PATH:", path);
+  console.log("TOKEN:", token);
+  console.log("=================================");
 
-  // ============= HALAMAN PUBLIC =============
-  if (pathname === '/auth/login' || pathname === '/auth/register') {
-    return NextResponse.next();
-  }
-
-  // ============= DASHBOARD ROUTES =============
-  if (pathname.startsWith('/dashboard')) {
-    // Belum login → redirect ke login
-    if (!userId) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
+  if (path.startsWith('/dashboard')) {
+    if (!token) {
+      return new NextResponse(
+        JSON.stringify({ error: "Unauthorized. Please login." }),
+        { status: 401, headers: { 'content-type': 'application/json' } }
+      );
     }
 
-    // Admin routes - hanya ADMIN
-    if (pathname.startsWith('/dashboard/admin') && role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/dashboard/user', request.url));
-    }
-
-    // User routes - USER atau ADMIN bisa
-    if (pathname.startsWith('/dashboard/user') && !userId) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
-    }
-
-    return NextResponse.next();
-  }
-
-  // ============= API ROUTES =============
-  if (pathname.startsWith('/api')) {
-    // API public - tanpa autentikasi
-    if (pathname === '/api/register' || 
-        pathname === '/api/login' || 
-        pathname === '/api/logout') {
+    if (path.startsWith('/dashboard/admin')) {
+      if (token.role !== 'ADMIN') {
+        console.log("❌ FORBIDDEN - Role:", token?.role);
+        return new NextResponse(
+          JSON.stringify({ error: "Forbidden. Admin only." }),
+          { status: 403, headers: { 'content-type': 'application/json' } }
+        );
+      }
+      console.log("✅ ADMIN ACCESS");
       return NextResponse.next();
     }
 
-    // API PRODUCT
-    if (pathname.startsWith('/api/product')) {
-      const method = request.method;
-      
-      // GET - semua user yang login bisa
-      if (method === 'GET') {
-        if (!userId) {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-        return NextResponse.next();
-      }
-      
-      // POST, PUT, DELETE - hanya ADMIN
-      if (['POST', 'PUT', 'DELETE'].includes(method)) {
-        if (!userId || role !== 'ADMIN') {
-          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-        }
-        return NextResponse.next();
-      }
-    }
-
-    // API UPLOAD - hanya ADMIN
-    if (pathname.startsWith('/api/upload')) {
-      if (!userId || role !== 'ADMIN') {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
+    if (path.startsWith('/dashboard/user')) {
+      console.log("✅ USER ACCESS");
       return NextResponse.next();
-    }
-
-    // ============= API CART ============= ✅ TAMBAHAN
-    if (pathname.startsWith('/api/cart')) {
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      return NextResponse.next();
-    }
-
-    // ============= API TRANSACTION ============= ✅ TAMBAHAN
-    if (pathname.startsWith('/api/transaction')) {
-      if (!userId) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-      }
-      return NextResponse.next();
-    }
-
-    // API lain - harus login
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   }
 
@@ -96,9 +44,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/api/:path*', 
-    '/auth/:path*',
-  ],
+  matcher: ['/dashboard/:path*'],
 };

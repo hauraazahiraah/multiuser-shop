@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { signOut } from "next-auth/react"; // ✅ IMPORT NEXTAUTH LOGOUT!
 
 // FORMAT RUPIAH - SUDAH DITAMBAHKAN!
 const formatRupiah = (num) => {
@@ -17,6 +18,7 @@ const formatRupiah = (num) => {
 export default function UserHome() {
   const router = useRouter();
   const [isHoveringProducts, setIsHoveringProducts] = useState(false);
+  const [isHoveringHistory, setIsHoveringHistory] = useState(false);
   const [isHoveringLogout, setIsHoveringLogout] = useState(false);
   const { cartCount } = useCart();
 
@@ -35,18 +37,12 @@ export default function UserHome() {
     { id: 4, name: "Dessert", icon: "🍰", count: 8 },
   ];
 
+  // ✅ LOGOUT PAKAI NEXTAUTH!
   const handleLogout = async () => {
-    try {
-      const res = await fetch("/api/logout", {
-        method: "GET",
-      });
-      
-      if (res.ok) {
-        router.push("/auth/login");
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+    await signOut({ 
+      redirect: true, 
+      callbackUrl: "/auth/login" 
+    });
   };
 
   return (
@@ -165,7 +161,7 @@ export default function UserHome() {
             )}
           </div>
           
-          {/* Logout Button */}
+          {/* Logout Button - PAKAI NEXTAUTH! */}
           <button
             onClick={handleLogout}
             onMouseEnter={() => setIsHoveringLogout(true)}
@@ -380,6 +376,136 @@ export default function UserHome() {
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Quick Actions Grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "20px",
+              marginBottom: "48px",
+            }}
+          >
+            {/* Browse Menu Card */}
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                border: "1px solid #eaeaea",
+                borderRadius: "16px",
+                padding: "24px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onClick={() => router.push("/dashboard/user/products")}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "#000000";
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.05)";
+                setIsHoveringProducts(true);
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "#eaeaea";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+                setIsHoveringProducts(false);
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <div
+                  style={{
+                    width: "56px",
+                    height: "56px",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "28px",
+                  }}
+                >
+                  🍽️
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ fontSize: "18px", fontWeight: 600, margin: 0, marginBottom: "4px" }}>
+                    Browse Menu
+                  </h4>
+                  <p style={{ fontSize: "14px", color: "#6b6b6b", margin: 0 }}>
+                    Jelajahi menu makanan kami
+                  </p>
+                </div>
+                <span
+                  style={{
+                    fontSize: "24px",
+                    color: isHoveringProducts ? "#000000" : "#8c8c8c",
+                    transition: "transform 0.2s",
+                    transform: isHoveringProducts ? "translateX(8px)" : "none",
+                  }}
+                >
+                  →
+                </span>
+              </div>
+            </div>
+
+            {/* Order History Card */}
+            <div
+              style={{
+                backgroundColor: "#ffffff",
+                border: "1px solid #eaeaea",
+                borderRadius: "16px",
+                padding: "24px",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onClick={() => router.push("/dashboard/user/history")}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "#000000";
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.05)";
+                setIsHoveringHistory(true);
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "#eaeaea";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+                setIsHoveringHistory(false);
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <div
+                  style={{
+                    width: "56px",
+                    height: "56px",
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "28px",
+                  }}
+                >
+                  📋
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h4 style={{ fontSize: "18px", fontWeight: 600, margin: 0, marginBottom: "4px" }}>
+                    Order History
+                  </h4>
+                  <p style={{ fontSize: "14px", color: "#6b6b6b", margin: 0 }}>
+                    Lihat riwayat pesananmu
+                  </p>
+                </div>
+                <span
+                  style={{
+                    fontSize: "24px",
+                    color: isHoveringHistory ? "#000000" : "#8c8c8c",
+                    transition: "transform 0.2s",
+                    transform: isHoveringHistory ? "translateX(8px)" : "none",
+                  }}
+                >
+                  →
+                </span>
+              </div>
             </div>
           </div>
 

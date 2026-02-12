@@ -5,11 +5,10 @@ import prisma from "@/lib/prisma";
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
-      orderBy: {
-        id: "desc",
-      },
+      orderBy: { id: "desc" },
     });
-    return NextResponse.json(products);
+
+    return NextResponse.json(products, { status: 200 });
   } catch (error) {
     console.error("GET error:", error);
     return NextResponse.json(
@@ -36,17 +35,16 @@ export async function POST(request) {
         name: body.name,
         price: Number(body.price),
         imageUrl: body.imageUrl || null,
-        category: body.category, // LANGSUNG dari form
-        stock: Number(body.stock), // LANGSUNG dari form
+        category: body.category || "General",
+        stock: Number(body.stock),
       },
     });
 
-    console.log("✅ Product created:", product.name);
-    return NextResponse.json(product);
+    return NextResponse.json(product, { status: 201 });
   } catch (error) {
     console.error("POST error:", error);
     return NextResponse.json(
-      { error: "Failed to create product: " + error.message },
+      { error: "Failed to create product" },
       { status: 500 }
     );
   }
@@ -67,13 +65,13 @@ export async function PUT(request) {
     }
 
     const product = await prisma.product.update({
-      where: { id: parseInt(id) },
+      where: { id: Number(id) },
       data: {
         name: body.name,
         price: Number(body.price),
         category: body.category,
         stock: Number(body.stock),
-        ...(body.imageUrl && { imageUrl: body.imageUrl }),
+        imageUrl: body.imageUrl ?? undefined,
       },
     });
 
@@ -81,7 +79,7 @@ export async function PUT(request) {
   } catch (error) {
     console.error("PUT error:", error);
     return NextResponse.json(
-      { error: "Failed to update product: " + error.message },
+      { error: "Failed to update product" },
       { status: 500 }
     );
   }
@@ -101,14 +99,14 @@ export async function DELETE(request) {
     }
 
     await prisma.product.delete({
-      where: { id: parseInt(id) },
+      where: { id: Number(id) },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ message: "Product deleted" });
   } catch (error) {
     console.error("DELETE error:", error);
     return NextResponse.json(
-      { error: "Failed to delete product: " + error.message },
+      { error: "Failed to delete product" },
       { status: 500 }
     );
   }

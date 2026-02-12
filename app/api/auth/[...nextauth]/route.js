@@ -16,7 +16,6 @@ export const authOptions = {
           throw new Error("Email and password required");
         }
 
-        // Cari user di database
         const user = await prisma.user.findUnique({
           where: { email: credentials.email }
         });
@@ -25,19 +24,22 @@ export const authOptions = {
           throw new Error("Email not registered");
         }
 
-        // Cek password
         const isValid = await bcrypt.compare(credentials.password, user.password);
-
         if (!isValid) {
           throw new Error("Wrong password");
         }
 
-        // Return user object (password akan otomatis dihapus)
+        // ✅ LOG UNTUK DEBUG
+        console.log("🔐 LOGIN SUCCESS:", { 
+          email: user.email, 
+          role: user.role 
+        });
+
         return {
           id: user.id.toString(),
           email: user.email,
           name: user.name,
-          role: user.role,
+          role: user.role, // ← HARUS "ADMIN"
         };
       }
     })
@@ -47,6 +49,7 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        console.log("🎫 JWT TOKEN:", token);
       }
       return token;
     },
@@ -54,17 +57,17 @@ export const authOptions = {
       if (session?.user) {
         session.user.id = token.id;
         session.user.role = token.role;
+        console.log("🍪 SESSION:", session);
       }
       return session;
     }
   },
   pages: {
     signIn: "/auth/login",
-    error: "/auth/error",
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 hari
+    maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

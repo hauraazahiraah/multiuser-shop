@@ -2,43 +2,48 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Email and password are required");
+      setError("Email and password are required");
       return;
     }
 
     setIsLoading(true);
+    setError("");
+
     try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        alert(errorText || "Login failed");
+      if (result?.error) {
+        setError(result.error);
+        setIsLoading(false);
         return;
       }
 
-      const data = await res.json();
-
-      if (data.role?.toLowerCase() === "admin") {
-        router.push("/dashboard/admin");
+      // ✅ AMBIL SESSION UNTUK CEK ROLE
+      const session = await fetch("/api/auth/session").then(res => res.json());
+      
+      // ✅ REDIRECT BERDASARKAN ROLE
+      if (session?.user?.role === "ADMIN") {
+        window.location.href = "/dashboard/admin";
       } else {
-        router.push("/dashboard/user");
+        window.location.href = "/dashboard/user";
       }
-    } catch (error) {
-      alert("An error occurred during login");
-    } finally {
+    } catch (err) {
+      setError("An error occurred during login");
       setIsLoading(false);
     }
   };
@@ -63,7 +68,6 @@ export default function LoginPage() {
           backgroundColor: "#ffffff",
         }}
       >
-        {/* Header */}
         <div style={{ marginBottom: "48px" }}>
           <h1
             style={{
@@ -89,7 +93,22 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Form */}
+        {error && (
+          <div
+            style={{
+              backgroundColor: "#fff1f0",
+              border: "1px solid #ffccc7",
+              borderRadius: "8px",
+              padding: "12px",
+              marginBottom: "24px",
+              color: "#cf1322",
+              fontSize: "14px",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
         <div style={{ marginBottom: "32px" }}>
           <div style={{ marginBottom: "24px" }}>
             <label
@@ -118,10 +137,7 @@ export default function LoginPage() {
                 color: "#000000",
                 outline: "none",
                 boxSizing: "border-box",
-                transition: "border-color 0.2s",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#000000")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e5e5")}
             />
           </div>
 
@@ -152,10 +168,7 @@ export default function LoginPage() {
                 color: "#000000",
                 outline: "none",
                 boxSizing: "border-box",
-                transition: "border-color 0.2s",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#000000")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e5e5")}
             />
           </div>
 
@@ -172,21 +185,12 @@ export default function LoginPage() {
               fontSize: "15px",
               fontWeight: 600,
               cursor: isLoading ? "not-allowed" : "pointer",
-              transition: "background-color 0.2s",
-              letterSpacing: "0.3px",
-            }}
-            onMouseEnter={(e) => {
-              if (!isLoading) e.currentTarget.style.backgroundColor = "#333333";
-            }}
-            onMouseLeave={(e) => {
-              if (!isLoading) e.currentTarget.style.backgroundColor = "#000000";
             }}
           >
             {isLoading ? "Signing in..." : "Sign in"}
           </button>
         </div>
 
-        {/* Register Link */}
         <div
           style={{
             textAlign: "center",
@@ -209,31 +213,15 @@ export default function LoginPage() {
                 border: "none",
                 color: "#000000",
                 textDecoration: "underline",
-                textUnderlineOffset: "4px",
                 cursor: "pointer",
                 padding: 0,
                 font: "inherit",
                 fontWeight: 600,
-                transition: "color 0.2s",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#404040")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#000000")}
             >
               Create an account
             </button>
           </p>
-        </div>
-
-        {/* Subtle credit (optional) */}
-        <div
-          style={{
-            marginTop: "48px",
-            textAlign: "center",
-            fontSize: "12px",
-            color: "#a3a3a3",
-          }}
-        >
-          © 2024 Your Company
         </div>
       </div>
     </div>
