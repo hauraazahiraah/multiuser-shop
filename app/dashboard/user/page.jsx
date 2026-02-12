@@ -2,11 +2,23 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
+
+// FORMAT RUPIAH - SUDAH DITAMBAHKAN!
+const formatRupiah = (num) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(num || 0);
+};
 
 export default function UserHome() {
   const router = useRouter();
   const [isHoveringProducts, setIsHoveringProducts] = useState(false);
   const [isHoveringLogout, setIsHoveringLogout] = useState(false);
+  const { cartCount } = useCart();
 
   // Mock data untuk rekomendasi
   const recommendedItems = [
@@ -41,7 +53,7 @@ export default function UserHome() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#f5f5f5",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
         display: "flex",
@@ -53,13 +65,14 @@ export default function UserHome() {
         style={{
           backgroundColor: "#ffffff",
           borderBottom: "1px solid #eaeaea",
-          padding: "20px 40px",
+          padding: "16px 40px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           position: "sticky",
           top: 0,
           zIndex: 10,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
         }}
       >
         <div
@@ -126,27 +139,30 @@ export default function UserHome() {
               cursor: "pointer",
               position: "relative",
             }}
+            onClick={() => router.push("/dashboard/user/cart")}
           >
             <span style={{ fontSize: "20px" }}>🛒</span>
-            <span
-              style={{
-                position: "absolute",
-                top: -5,
-                right: -5,
-                backgroundColor: "#000000",
-                color: "#ffffff",
-                fontSize: "10px",
-                fontWeight: 600,
-                width: "18px",
-                height: "18px",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              3
-            </span>
+            {cartCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: -5,
+                  right: -5,
+                  backgroundColor: "#000000",
+                  color: "#ffffff",
+                  fontSize: "10px",
+                  fontWeight: 600,
+                  width: "18px",
+                  height: "18px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {cartCount}
+              </span>
+            )}
           </div>
           
           {/* Logout Button */}
@@ -194,31 +210,26 @@ export default function UserHome() {
       </header>
 
       {/* Main Content */}
-      <main
-        style={{
-          flex: 1,
-          padding: "40px",
-          backgroundColor: "#ffffff",
-        }}
-      >
-        <div style={{ maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
+      <main style={{ flex: 1, padding: "40px 24px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           {/* Hero Section */}
           <div
             style={{
-              backgroundColor: "#fafafa",
-              borderRadius: "24px",
-              padding: "48px",
-              marginBottom: "48px",
+              backgroundColor: "#ffffff",
+              borderRadius: "16px",
+              padding: "40px",
+              marginBottom: "40px",
               border: "1px solid #eaeaea",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
             }}
           >
             <div style={{ maxWidth: "500px" }}>
               <h2
                 style={{
-                  fontSize: "40px",
+                  fontSize: "36px",
                   fontWeight: 700,
                   color: "#000000",
                   margin: 0,
@@ -228,13 +239,13 @@ export default function UserHome() {
                 }}
               >
                 Welcome back,{" "}
-                <span style={{ backgroundColor: "#000000", color: "#ffffff", padding: "0 8px" }}>
+                <span style={{ backgroundColor: "#000000", color: "#ffffff", padding: "0 8px", borderRadius: "4px" }}>
                   User
                 </span>
               </h2>
               <p
                 style={{
-                  fontSize: "18px",
+                  fontSize: "16px",
                   color: "#6b6b6b",
                   margin: 0,
                   marginBottom: "32px",
@@ -248,11 +259,11 @@ export default function UserHome() {
                 onMouseEnter={() => setIsHoveringProducts(true)}
                 onMouseLeave={() => setIsHoveringProducts(false)}
                 style={{
-                  padding: "16px 32px",
+                  padding: "14px 32px",
                   backgroundColor: isHoveringProducts ? "#333333" : "#000000",
                   color: "#ffffff",
                   border: "none",
-                  borderRadius: "12px",
+                  borderRadius: "10px",
                   fontSize: "16px",
                   fontWeight: 600,
                   cursor: "pointer",
@@ -271,7 +282,7 @@ export default function UserHome() {
             </div>
             <div
               style={{
-                fontSize: "120px",
+                fontSize: "100px",
                 opacity: 0.8,
               }}
             >
@@ -286,7 +297,7 @@ export default function UserHome() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "24px",
+                marginBottom: "20px",
               }}
             >
               <h3
@@ -305,6 +316,7 @@ export default function UserHome() {
                   color: "#6b6b6b",
                   cursor: "pointer",
                 }}
+                onClick={() => router.push("/dashboard/user/products")}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "#000000")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "#6b6b6b")}
               >
@@ -315,7 +327,7 @@ export default function UserHome() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(4, 1fr)",
-                gap: "16px",
+                gap: "20px",
               }}
             >
               {categories.map((cat) => (
@@ -323,13 +335,15 @@ export default function UserHome() {
                   key={cat.id}
                   style={{
                     padding: "24px",
-                    backgroundColor: "#fafafa",
+                    backgroundColor: "#ffffff",
                     border: "1px solid #eaeaea",
-                    borderRadius: "16px",
+                    borderRadius: "12px",
                     cursor: "pointer",
                     transition: "all 0.2s",
                     textAlign: "center",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
                   }}
+                  onClick={() => router.push("/dashboard/user/products")}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "#ffffff";
                     e.currentTarget.style.borderColor = "#000000";
@@ -337,10 +351,10 @@ export default function UserHome() {
                     e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.05)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#fafafa";
+                    e.currentTarget.style.backgroundColor = "#ffffff";
                     e.currentTarget.style.borderColor = "#eaeaea";
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
+                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.02)";
                   }}
                 >
                   <div style={{ fontSize: "40px", marginBottom: "12px" }}>{cat.icon}</div>
@@ -376,7 +390,7 @@ export default function UserHome() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "24px",
+                marginBottom: "20px",
               }}
             >
               <div>
@@ -430,7 +444,7 @@ export default function UserHome() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(4, 1fr)",
-                gap: "24px",
+                gap: "20px",
               }}
             >
               {recommendedItems.map((item) => (
@@ -439,11 +453,13 @@ export default function UserHome() {
                   style={{
                     backgroundColor: "#ffffff",
                     border: "1px solid #eaeaea",
-                    borderRadius: "16px",
-                    padding: "20px",
+                    borderRadius: "12px",
+                    padding: "16px",
                     cursor: "pointer",
                     transition: "all 0.2s",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
                   }}
+                  onClick={() => router.push("/dashboard/user/products")}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = "#000000";
                     e.currentTarget.style.transform = "translateY(-4px)";
@@ -452,7 +468,7 @@ export default function UserHome() {
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = "#eaeaea";
                     e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "none";
+                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.02)";
                   }}
                 >
                   <div
@@ -460,12 +476,12 @@ export default function UserHome() {
                       width: "100%",
                       height: "140px",
                       backgroundColor: "#fafafa",
-                      borderRadius: "12px",
+                      borderRadius: "8px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       fontSize: "48px",
-                      marginBottom: "16px",
+                      marginBottom: "12px",
                     }}
                   >
                     {item.image}
@@ -500,20 +516,24 @@ export default function UserHome() {
                   >
                     <span
                       style={{
-                        fontSize: "18px",
+                        fontSize: "16px",
                         fontWeight: 700,
                         color: "#000000",
                       }}
                     >
-                      Rp {item.price.toLocaleString("id-ID")}
+                      {formatRupiah(item.price)}
                     </span>
                     <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Add to cart functionality
+                      }}
                       style={{
-                        padding: "8px 16px",
+                        padding: "6px 12px",
                         backgroundColor: "#000000",
                         color: "#ffffff",
                         border: "none",
-                        borderRadius: "8px",
+                        borderRadius: "6px",
                         fontSize: "12px",
                         fontWeight: 600,
                         cursor: "pointer",
@@ -605,111 +625,6 @@ export default function UserHome() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer
-        style={{
-          backgroundColor: "#fafafa",
-          borderTop: "1px solid #eaeaea",
-          padding: "48px 40px",
-          marginTop: "auto",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "40px",
-          }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  backgroundColor: "#000000",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#ffffff",
-                  fontWeight: 700,
-                  fontSize: "16px",
-                }}
-              >
-                🍜
-              </div>
-              <span style={{ fontSize: "16px", fontWeight: 700, color: "#000000" }}>FoodieDash</span>
-            </div>
-            <p style={{ fontSize: "14px", color: "#6b6b6b", lineHeight: 1.6, margin: 0 }}>
-              Delicious food delivered fast, fresh, and right to your door.
-            </p>
-          </div>
-          <div>
-            <h4 style={{ fontSize: "14px", fontWeight: 600, color: "#000000", margin: "0 0 16px 0" }}>
-              About
-            </h4>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>About Us</span>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>Careers</span>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>Blog</span>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 style={{ fontSize: "14px", fontWeight: 600, color: "#000000", margin: "0 0 16px 0" }}>
-              Support
-            </h4>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>Contact Us</span>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>FAQ</span>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>Privacy Policy</span>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 style={{ fontSize: "14px", fontWeight: 600, color: "#000000", margin: "0 0 16px 0" }}>
-              Follow Us
-            </h4>
-            <div style={{ display: "flex", gap: "16px" }}>
-              <span style={{ fontSize: "20px", cursor: "pointer" }}>📘</span>
-              <span style={{ fontSize: "20px", cursor: "pointer" }}>📸</span>
-              <span style={{ fontSize: "20px", cursor: "pointer" }}>🐦</span>
-            </div>
-          </div>
-        </div>
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "40px auto 0",
-            paddingTop: "32px",
-            borderTop: "1px solid #eaeaea",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <span style={{ fontSize: "12px", color: "#8c8c8c" }}>
-            © 2024 FoodieDash. All rights reserved.
-          </span>
-          <span style={{ fontSize: "12px", color: "#8c8c8c" }}>
-            v1.0.0
-          </span>
-        </div>
-      </footer>
     </div>
   );
 }

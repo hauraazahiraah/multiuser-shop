@@ -1,21 +1,52 @@
-import prisma from "@/lib/prisma";
+"use client";
 
-// Format rupiah function
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
+
 const formatRupiah = (number) => {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(number);
+  }).format(number || 0);
 };
 
-export default async function UserProducts() {
-  const products = await prisma.product.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
+export default function UserProducts() {
+  const router = useRouter();
+  const { addToCart, cartCount } = useCart();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [addingId, setAddingId] = useState(null);
+
+  const loadProducts = async () => {
+    try {
+      const res = await fetch("/api/product");
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data);
+      }
+    } catch (error) {
+      console.error("Failed to load products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const handleAddToCart = async (productId) => {
+    setAddingId(productId);
+    const result = await addToCart(productId, 1);
+    setAddingId(null);
+    
+    if (!result.success) {
+      alert(result.error || "Failed to add to cart");
+    }
+  };
 
   // Group products by category
   const categories = products.reduce((acc, product) => {
@@ -27,11 +58,30 @@ export default async function UserProducts() {
     return acc;
   }, {});
 
+  if (loading) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "32px", marginBottom: "16px" }}>⏳</div>
+          <p style={{ color: "#6b6b6b" }}>Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#f5f5f5",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       }}
@@ -41,13 +91,14 @@ export default async function UserProducts() {
         style={{
           backgroundColor: "#ffffff",
           borderBottom: "1px solid #eaeaea",
-          padding: "20px 40px",
+          padding: "16px 40px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           position: "sticky",
           top: 0,
           zIndex: 10,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
         }}
       >
         <div
@@ -55,57 +106,48 @@ export default async function UserProducts() {
             display: "flex",
             alignItems: "center",
             gap: "12px",
+            cursor: "pointer",
           }}
+          onClick={() => router.push("/dashboard/user")}
         >
-          <a
-            href="/dashboard/user"
+          <div
             style={{
+              width: "40px",
+              height: "40px",
+              backgroundColor: "#000000",
+              borderRadius: "10px",
               display: "flex",
               alignItems: "center",
-              gap: "12px",
-              textDecoration: "none",
-              cursor: "pointer",
+              justifyContent: "center",
+              color: "#ffffff",
+              fontWeight: 700,
+              fontSize: "20px",
             }}
           >
-            <div
+            🍜
+          </div>
+          <div>
+            <h1
               style={{
-                width: "40px",
-                height: "40px",
-                backgroundColor: "#000000",
-                borderRadius: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#ffffff",
+                fontSize: "18px",
                 fontWeight: 700,
-                fontSize: "20px",
+                color: "#000000",
+                margin: 0,
+                letterSpacing: "-0.3px",
               }}
             >
-              🍜
-            </div>
-            <div>
-              <h1
-                style={{
-                  fontSize: "18px",
-                  fontWeight: 700,
-                  color: "#000000",
-                  margin: 0,
-                  letterSpacing: "-0.3px",
-                }}
-              >
-                FoodieDash
-              </h1>
-              <p
-                style={{
-                  fontSize: "12px",
-                  color: "#6b6b6b",
-                  margin: "4px 0 0 0",
-                }}
-              >
-                Our Menu
-              </p>
-            </div>
-          </a>
+              FoodieDash
+            </h1>
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#6b6b6b",
+                margin: "4px 0 0 0",
+              }}
+            >
+              Our Menu
+            </p>
+          </div>
         </div>
 
         <div
@@ -115,29 +157,6 @@ export default async function UserProducts() {
             gap: "16px",
           }}
         >
-          {/* Back Button - tanpa event handlers */}
-          <a
-            href="/dashboard/user"
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "transparent",
-              color: "#404040",
-              border: "1px solid #eaeaea",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: 500,
-              cursor: "pointer",
-              transition: "all 0.2s",
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <span style={{ fontSize: "16px" }}>←</span>
-            Back to Dashboard
-          </a>
-          
           <div
             style={{
               padding: "10px",
@@ -146,27 +165,30 @@ export default async function UserProducts() {
               cursor: "pointer",
               position: "relative",
             }}
+            onClick={() => router.push("/dashboard/user/cart")}
           >
             <span style={{ fontSize: "20px" }}>🛒</span>
-            <span
-              style={{
-                position: "absolute",
-                top: -5,
-                right: -5,
-                backgroundColor: "#000000",
-                color: "#ffffff",
-                fontSize: "10px",
-                fontWeight: 600,
-                width: "18px",
-                height: "18px",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              0
-            </span>
+            {cartCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: -5,
+                  right: -5,
+                  backgroundColor: "#000000",
+                  color: "#ffffff",
+                  fontSize: "10px",
+                  fontWeight: 600,
+                  width: "18px",
+                  height: "18px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {cartCount}
+              </span>
+            )}
           </div>
           <div
             style={{
@@ -189,9 +211,9 @@ export default async function UserProducts() {
       </header>
 
       {/* Main Content */}
-      <main style={{ flex: 1, padding: "40px", backgroundColor: "#ffffff" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
-          {/* Breadcrumb Navigation - tanpa event handlers */}
+      <main style={{ padding: "40px 24px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          {/* Breadcrumb */}
           <div
             style={{
               display: "flex",
@@ -202,16 +224,12 @@ export default async function UserProducts() {
               color: "#8c8c8c",
             }}
           >
-            <a
-              href="/dashboard/user"
-              style={{
-                color: "#8c8c8c",
-                textDecoration: "none",
-                cursor: "pointer",
-              }}
+            <span
+              style={{ cursor: "pointer", color: "#8c8c8c" }}
+              onClick={() => router.push("/dashboard/user")}
             >
               Dashboard
-            </a>
+            </span>
             <span style={{ color: "#eaeaea" }}>/</span>
             <span style={{ color: "#000000", fontWeight: 500 }}>Products</span>
           </div>
@@ -220,7 +238,7 @@ export default async function UserProducts() {
           <div style={{ marginBottom: "32px" }}>
             <h2
               style={{
-                fontSize: "32px",
+                fontSize: "28px",
                 fontWeight: 700,
                 color: "#000000",
                 margin: 0,
@@ -250,7 +268,7 @@ export default async function UserProducts() {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    marginBottom: "24px",
+                    marginBottom: "16px",
                   }}
                 >
                   <h3
@@ -266,7 +284,7 @@ export default async function UserProducts() {
                   <span
                     style={{
                       padding: "6px 16px",
-                      backgroundColor: "#f5f5f5",
+                      backgroundColor: "#eaeaea",
                       borderRadius: "20px",
                       fontSize: "13px",
                       color: "#404040",
@@ -280,7 +298,7 @@ export default async function UserProducts() {
                   style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                    gap: "24px",
+                    gap: "20px",
                   }}
                 >
                   {categories[category].map((product) => (
@@ -289,18 +307,29 @@ export default async function UserProducts() {
                       style={{
                         backgroundColor: "#ffffff",
                         border: "1px solid #eaeaea",
-                        borderRadius: "16px",
+                        borderRadius: "12px",
                         overflow: "hidden",
                         transition: "all 0.2s",
                         display: "flex",
                         flexDirection: "column",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.05)";
+                        e.currentTarget.style.borderColor = "#000000";
+                        e.currentTarget.style.transform = "translateY(-4px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.02)";
+                        e.currentTarget.style.borderColor = "#eaeaea";
+                        e.currentTarget.style.transform = "translateY(0)";
                       }}
                     >
                       {/* Image Container */}
                       <div
                         style={{
                           width: "100%",
-                          height: "200px",
+                          height: "180px",
                           backgroundColor: "#fafafa",
                           display: "flex",
                           alignItems: "center",
@@ -324,11 +353,11 @@ export default async function UserProducts() {
                       </div>
 
                       {/* Content */}
-                      <div style={{ padding: "20px", flex: 1, display: "flex", flexDirection: "column" }}>
-                        <div style={{ marginBottom: "12px" }}>
+                      <div style={{ padding: "16px", flex: 1, display: "flex", flexDirection: "column" }}>
+                        <div style={{ marginBottom: "8px" }}>
                           <h4
                             style={{
-                              fontSize: "18px",
+                              fontSize: "16px",
                               fontWeight: 600,
                               color: "#000000",
                               margin: 0,
@@ -339,7 +368,7 @@ export default async function UserProducts() {
                           </h4>
                           <p
                             style={{
-                              fontSize: "20px",
+                              fontSize: "18px",
                               fontWeight: 700,
                               color: "#000000",
                               margin: 0,
@@ -365,16 +394,18 @@ export default async function UserProducts() {
                         </div>
 
                         <button
+                          onClick={() => handleAddToCart(product.id)}
+                          disabled={addingId === product.id}
                           style={{
                             width: "100%",
                             padding: "12px",
-                            backgroundColor: "#000000",
+                            backgroundColor: addingId === product.id ? "#8c8c8c" : "#000000",
                             color: "#ffffff",
                             border: "none",
-                            borderRadius: "10px",
+                            borderRadius: "8px",
                             fontSize: "14px",
                             fontWeight: 600,
-                            cursor: "pointer",
+                            cursor: addingId === product.id ? "not-allowed" : "pointer",
                             transition: "all 0.2s",
                             display: "flex",
                             alignItems: "center",
@@ -382,8 +413,18 @@ export default async function UserProducts() {
                             gap: "8px",
                             marginTop: "auto",
                           }}
+                          onMouseEnter={(e) => {
+                            if (addingId !== product.id) {
+                              e.currentTarget.style.backgroundColor = "#333333";
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (addingId !== product.id) {
+                              e.currentTarget.style.backgroundColor = "#000000";
+                            }
+                          }}
                         >
-                          <span>Add to Cart</span>
+                          <span>{addingId === product.id ? "Adding..." : "Add to Cart"}</span>
                           <span style={{ fontSize: "16px" }}>+</span>
                         </button>
                       </div>
@@ -397,8 +438,8 @@ export default async function UserProducts() {
               style={{
                 textAlign: "center",
                 padding: "80px 40px",
-                backgroundColor: "#fafafa",
-                borderRadius: "16px",
+                backgroundColor: "#ffffff",
+                borderRadius: "12px",
                 border: "1px solid #eaeaea",
               }}
             >
@@ -427,111 +468,6 @@ export default async function UserProducts() {
           )}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer
-        style={{
-          backgroundColor: "#fafafa",
-          borderTop: "1px solid #eaeaea",
-          padding: "48px 40px",
-          marginTop: "auto",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "40px",
-          }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  backgroundColor: "#000000",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#ffffff",
-                  fontWeight: 700,
-                  fontSize: "16px",
-                }}
-              >
-                🍜
-              </div>
-              <span style={{ fontSize: "16px", fontWeight: 700, color: "#000000" }}>FoodieDash</span>
-            </div>
-            <p style={{ fontSize: "14px", color: "#6b6b6b", lineHeight: 1.6, margin: 0 }}>
-              Delicious food delivered fast, fresh, and right to your door.
-            </p>
-          </div>
-          <div>
-            <h4 style={{ fontSize: "14px", fontWeight: 600, color: "#000000", margin: "0 0 16px 0" }}>
-              About
-            </h4>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>About Us</span>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>Careers</span>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>Blog</span>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 style={{ fontSize: "14px", fontWeight: 600, color: "#000000", margin: "0 0 16px 0" }}>
-              Support
-            </h4>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>Contact Us</span>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>FAQ</span>
-              </li>
-              <li style={{ marginBottom: "12px" }}>
-                <span style={{ fontSize: "13px", color: "#6b6b6b", cursor: "pointer" }}>Privacy Policy</span>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 style={{ fontSize: "14px", fontWeight: 600, color: "#000000", margin: "0 0 16px 0" }}>
-              Follow Us
-            </h4>
-            <div style={{ display: "flex", gap: "16px" }}>
-              <span style={{ fontSize: "20px", cursor: "pointer" }}>📘</span>
-              <span style={{ fontSize: "20px", cursor: "pointer" }}>📸</span>
-              <span style={{ fontSize: "20px", cursor: "pointer" }}>🐦</span>
-            </div>
-          </div>
-        </div>
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "40px auto 0",
-            paddingTop: "32px",
-            borderTop: "1px solid #eaeaea",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <span style={{ fontSize: "12px", color: "#8c8c8c" }}>
-            © 2024 FoodieDash. All rights reserved.
-          </span>
-          <span style={{ fontSize: "12px", color: "#8c8c8c" }}>
-            v1.0.0
-          </span>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -70,6 +70,22 @@ export function middleware(request) {
       return NextResponse.next();
     }
 
+    // ============= API CART ============= ✅ TAMBAHAN
+    if (pathname.startsWith('/api/cart')) {
+      if (!userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      return NextResponse.next();
+    }
+
+    // ============= API TRANSACTION ============= ✅ TAMBAHAN
+    if (pathname.startsWith('/api/transaction')) {
+      if (!userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      return NextResponse.next();
+    }
+
     // API lain - harus login
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -82,7 +98,7 @@ export function middleware(request) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/api/:path*',
+    '/api/:path*', 
     '/auth/:path*',
   ],
 };
