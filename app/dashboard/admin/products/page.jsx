@@ -180,286 +180,82 @@ export default function AdminProducts() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#ffffff",
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {/* Header */}
-      <header
-        style={{
-          backgroundColor: "#ffffff",
-          borderBottom: "1px solid #eaeaea",
-          padding: "20px 40px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            cursor: "pointer",
-          }}
-          onClick={() => router.push("/dashboard/admin")}
-        >
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              backgroundColor: "#000000",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              fontWeight: 700,
-              fontSize: "20px",
-            }}
-          >
-            🍜
-          </div>
-          <div>
-            <h1
-              style={{
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "#000000",
-                margin: 0,
-                letterSpacing: "-0.3px",
-              }}
-            >
-              FoodieDash
-            </h1>
-            <p
-              style={{
-                fontSize: "12px",
-                color: "#6b6b6b",
-                margin: "4px 0 0 0",
-              }}
-            >
-              Product Management
-            </p>
-          </div>
+    <div className="admin-products">
+      {/* Header with Navigation */}
+      <header className="header">
+        <div className="header-left" onClick={() => router.push("/dashboard/admin")}>
+          <div className="logo">SS</div>
+          <h1 className="brand">Serein Space</h1>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-          }}
-        >
+        <nav className="main-nav">
           <button
+            className="nav-link"
             onClick={() => router.push("/dashboard/admin")}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "transparent",
-              color: "#404040",
-              border: "1px solid #eaeaea",
-              borderRadius: "8px",
-              fontSize: "14px",
-              fontWeight: 500,
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#f5f5f5";
-              e.currentTarget.style.borderColor = "#000000";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.borderColor = "#eaeaea";
-            }}
           >
-            ← Back to Dashboard
+            Dashboard
           </button>
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              backgroundColor: "#f5f5f5",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#404040",
-              fontWeight: 600,
-              fontSize: "16px",
-              cursor: "pointer",
-            }}
+          <button
+            className="nav-link active"
+            onClick={() => router.push("/dashboard/admin/products")}
           >
-            A
-          </div>
+            Products
+          </button>
+          <button
+            className="nav-link"
+            onClick={() => router.push("/dashboard/admin/orders")}
+          >
+            Orders Report
+          </button>
+        </nav>
+
+        <div className="header-right">
+          <div className="avatar">A</div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main style={{ flex: 1, padding: "40px", backgroundColor: "#ffffff" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
+      <main className="content">
+        <div className="container">
           {/* Page Title */}
-          <div style={{ marginBottom: "32px" }}>
-            <h2
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                color: "#000000",
-                margin: 0,
-                marginBottom: "8px",
-                letterSpacing: "-0.5px",
-              }}
-            >
-              Manage Products
-            </h2>
-            <p
-              style={{
-                fontSize: "15px",
-                color: "#6b6b6b",
-                margin: 0,
-              }}
-            >
-              Add, edit, and remove food items from your menu
-            </p>
+          <div className="page-header">
+            <h2 className="page-title">MANAGE PRODUCTS</h2>
+            <p className="page-subtitle">Add, edit, and remove food items from your menu</p>
           </div>
 
           {/* Add Product Form */}
-          <div
-            style={{
-              backgroundColor: "#fafafa",
-              borderRadius: "16px",
-              padding: "32px",
-              marginBottom: "48px",
-              border: "1px solid #eaeaea",
-            }}
-          >
-            <h3
-              style={{
-                fontSize: "18px",
-                fontWeight: 600,
-                color: "#000000",
-                margin: 0,
-                marginBottom: "24px",
-              }}
-            >
-              Add New Product
-            </h3>
+          <div className="form-section">
+            <h3 className="form-title">ADD NEW PRODUCT</h3>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                gap: "24px",
-              }}
-            >
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    color: "#404040",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Product Name *
-                </label>
+            <div className="form-grid">
+              <div className="form-group">
+                <label className="form-label">Product Name *</label>
                 <input
+                  type="text"
                   placeholder="e.g. Nasi Goreng"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    fontSize: "14px",
-                    border: "1px solid #eaeaea",
-                    borderRadius: "8px",
-                    backgroundColor: "#ffffff",
-                    color: "#000000",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#000000")}
-                  onBlur={(e) => (e.target.style.borderColor = "#eaeaea")}
+                  className="form-input"
                 />
               </div>
 
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    color: "#404040",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Price (IDR) *
-                </label>
+              <div className="form-group">
+                <label className="form-label">Price (IDR) *</label>
                 <input
                   type="number"
                   placeholder="50000"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    fontSize: "14px",
-                    border: "1px solid #eaeaea",
-                    borderRadius: "8px",
-                    backgroundColor: "#ffffff",
-                    color: "#000000",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#000000")}
-                  onBlur={(e) => (e.target.style.borderColor = "#eaeaea")}
+                  className="form-input"
                 />
               </div>
 
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    color: "#404040",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Category *
-                </label>
+              <div className="form-group">
+                <label className="form-label">Category *</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    fontSize: "14px",
-                    border: "1px solid #eaeaea",
-                    borderRadius: "8px",
-                    backgroundColor: "#ffffff",
-                    color: "#000000",
-                    outline: "none",
-                    boxSizing: "border-box",
-                    cursor: "pointer",
-                    appearance: "none",
-                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 16px center",
-                    backgroundSize: "16px",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#000000")}
-                  onBlur={(e) => (e.target.style.borderColor = "#eaeaea")}
+                  className="form-select"
                 >
                   <option value="Makanan">Makanan</option>
                   <option value="Minuman">Minuman</option>
@@ -468,83 +264,24 @@ export default function AdminProducts() {
                 </select>
               </div>
 
-              <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    color: "#404040",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Stock *
-                </label>
+              <div className="form-group">
+                <label className="form-label">Stock *</label>
                 <input
                   type="number"
                   placeholder="100"
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    fontSize: "14px",
-                    border: "1px solid #eaeaea",
-                    borderRadius: "8px",
-                    backgroundColor: "#ffffff",
-                    color: "#000000",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#000000")}
-                  onBlur={(e) => (e.target.style.borderColor = "#eaeaea")}
+                  className="form-input"
                 />
               </div>
 
-              <div style={{ gridColumn: "span 2" }}>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    color: "#404040",
-                    marginBottom: "8px",
-                  }}
-                >
-                  Product Image
-                </label>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "16px",
-                  }}
-                >
-                  <label
-                    htmlFor="file-upload"
-                    style={{
-                      padding: "12px 24px",
-                      backgroundColor: "#ffffff",
-                      color: "#404040",
-                      border: "1px solid #eaeaea",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      transition: "all 0.2s",
-                      display: "inline-block",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#f5f5f5";
-                      e.currentTarget.style.borderColor = "#000000";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "#ffffff";
-                      e.currentTarget.style.borderColor = "#eaeaea";
-                    }}
-                  >
+              <div className="form-group full-width">
+                <label className="form-label">Product Image</label>
+                <div className="file-input-wrapper">
+                  <label htmlFor="file-upload" className="file-button">
                     Choose File
                   </label>
+                  <span className="file-name">{file ? file.name : "No file chosen"}</span>
                   <input
                     id="file-upload"
                     type="file"
@@ -552,427 +289,129 @@ export default function AdminProducts() {
                     onChange={(e) => setFile(e.target.files[0])}
                     style={{ display: "none" }}
                   />
-                  <span
-                    style={{
-                      fontSize: "13px",
-                      color: file ? "#000000" : "#8c8c8c",
-                    }}
-                  >
-                    {file ? file.name : "No file chosen"}
-                  </span>
                 </div>
               </div>
             </div>
 
-            <div style={{ marginTop: "32px" }}>
+            <div className="form-actions">
               <button
                 onClick={add}
                 disabled={isAdding}
-                style={{
-                  padding: "12px 32px",
-                  backgroundColor: isAdding ? "#8c8c8c" : "#000000",
-                  color: "#ffffff",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  cursor: isAdding ? "not-allowed" : "pointer",
-                  transition: "background-color 0.2s",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isAdding) e.currentTarget.style.backgroundColor = "#333333";
-                }}
-                onMouseLeave={(e) => {
-                  if (!isAdding) e.currentTarget.style.backgroundColor = "#000000";
-                }}
+                className="btn btn-primary"
               >
-                {isAdding ? "Adding..." : "Add Product"}
-                <span style={{ fontSize: "18px" }}>+</span>
+                {isAdding ? "Adding..." : "Add Product"} <span>+</span>
               </button>
             </div>
           </div>
 
           {/* Products List */}
-          <div>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "24px",
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: "18px",
-                  fontWeight: 600,
-                  color: "#000000",
-                  margin: 0,
-                }}
-              >
-                All Products
-              </h3>
-              <span
-                style={{
-                  padding: "6px 12px",
-                  backgroundColor: "#f5f5f5",
-                  borderRadius: "20px",
-                  fontSize: "13px",
-                  color: "#404040",
-                }}
-              >
-                {products.length} items
-              </span>
+          <div className="products-section">
+            <div className="section-header">
+              <h3 className="section-title">ALL PRODUCTS</h3>
+              <span className="product-count">{products.length} items</span>
             </div>
 
             {loading ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "60px",
-                  backgroundColor: "#fafafa",
-                  borderRadius: "16px",
-                  border: "1px solid #eaeaea",
-                }}
-              >
-                <div style={{ fontSize: "32px", marginBottom: "16px" }}>⏳</div>
-                <p style={{ color: "#6b6b6b", margin: 0 }}>Loading products...</p>
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p>Loading products...</p>
               </div>
             ) : products.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "60px",
-                  backgroundColor: "#fafafa",
-                  borderRadius: "16px",
-                  border: "1px solid #eaeaea",
-                }}
-              >
-                <div style={{ fontSize: "48px", marginBottom: "16px" }}>🍽️</div>
-                <h4
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: 600,
-                    color: "#000000",
-                    margin: "0 0 8px 0",
-                  }}
-                >
-                  No products yet
-                </h4>
-                <p
-                  style={{
-                    fontSize: "14px",
-                    color: "#6b6b6b",
-                    margin: 0,
-                  }}
-                >
-                  Add your first product to get started
-                </p>
+              <div className="empty-state">
+                <div className="empty-icon">🍽️</div>
+                <h4>No products yet</h4>
+                <p>Add your first product to get started</p>
               </div>
             ) : (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                  gap: "24px",
-                }}
-              >
+              <div className="products-grid">
                 {products.map((p) => (
-                  <div
-                    key={p.id}
-                    style={{
-                      backgroundColor: "#ffffff",
-                      border: "1px solid #eaeaea",
-                      borderRadius: "16px",
-                      overflow: "hidden",
-                      transition: "all 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.05)";
-                      e.currentTarget.style.borderColor = "#000000";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = "none";
-                      e.currentTarget.style.borderColor = "#eaeaea";
-                    }}
-                  >
+                  <div key={p.id} className="product-card">
                     {p.imageUrl && (
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "180px",
-                          backgroundColor: "#fafafa",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          borderBottom: "1px solid #eaeaea",
-                        }}
-                      >
-                        <img
-                          src={p.imageUrl}
-                          alt={p.name}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
+                      <div className="product-image">
+                        <img src={p.imageUrl} alt={p.name} />
                       </div>
                     )}
 
                     {editId === p.id ? (
-                      <div style={{ padding: "20px" }}>
-                        <div style={{ marginBottom: "16px" }}>
-                          <label style={{ fontSize: "12px", color: "#6b6b6b", display: "block", marginBottom: "4px" }}>
-                            Name
-                          </label>
+                      <div className="edit-form">
+                        <div className="edit-field">
+                          <label>Name</label>
                           <input
-                            value={editName || ""}
+                            type="text"
+                            value={editName}
                             onChange={(e) => setEditName(e.target.value)}
-                            style={{
-                              width: "100%",
-                              padding: "10px 12px",
-                              fontSize: "14px",
-                              border: "1px solid #eaeaea",
-                              borderRadius: "6px",
-                              marginBottom: "12px",
-                            }}
                           />
-                          
-                          <label style={{ fontSize: "12px", color: "#6b6b6b", display: "block", marginBottom: "4px" }}>
-                            Price
-                          </label>
+                        </div>
+                        <div className="edit-field">
+                          <label>Price</label>
                           <input
                             type="number"
-                            value={editPrice?.toString() || ""}
+                            value={editPrice}
                             onChange={(e) => setEditPrice(e.target.value)}
-                            style={{
-                              width: "100%",
-                              padding: "10px 12px",
-                              fontSize: "14px",
-                              border: "1px solid #eaeaea",
-                              borderRadius: "6px",
-                              marginBottom: "12px",
-                            }}
                           />
-
-                          <label style={{ fontSize: "12px", color: "#6b6b6b", display: "block", marginBottom: "4px" }}>
-                            Category
-                          </label>
+                        </div>
+                        <div className="edit-field">
+                          <label>Category</label>
                           <select
-                            value={editCategory || "Makanan"}
+                            value={editCategory}
                             onChange={(e) => setEditCategory(e.target.value)}
-                            style={{
-                              width: "100%",
-                              padding: "10px 12px",
-                              fontSize: "14px",
-                              border: "1px solid #eaeaea",
-                              borderRadius: "6px",
-                              marginBottom: "12px",
-                              appearance: "none",
-                              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                              backgroundRepeat: "no-repeat",
-                              backgroundPosition: "right 12px center",
-                              backgroundSize: "14px",
-                            }}
                           >
                             <option value="Makanan">Makanan</option>
                             <option value="Minuman">Minuman</option>
                             <option value="Snack">Snack</option>
                             <option value="Dessert">Dessert</option>
                           </select>
-
-                          <label style={{ fontSize: "12px", color: "#6b6b6b", display: "block", marginBottom: "4px" }}>
-                            Stock
-                          </label>
+                        </div>
+                        <div className="edit-field">
+                          <label>Stock</label>
                           <input
                             type="number"
-                            value={editStock?.toString() || ""}
+                            value={editStock}
                             onChange={(e) => setEditStock(e.target.value)}
-                            style={{
-                              width: "100%",
-                              padding: "10px 12px",
-                              fontSize: "14px",
-                              border: "1px solid #eaeaea",
-                              borderRadius: "6px",
-                              marginBottom: "16px",
-                            }}
                           />
-
-                          <label style={{ fontSize: "12px", color: "#6b6b6b", display: "block", marginBottom: "4px" }}>
-                            New Image (optional)
-                          </label>
+                        </div>
+                        <div className="edit-field">
+                          <label>New Image (optional)</label>
                           <input
                             type="file"
                             accept="image/*"
                             onChange={(e) => setEditFile(e.target.files[0])}
-                            style={{
-                              width: "100%",
-                              fontSize: "13px",
-                              marginBottom: "16px",
-                            }}
                           />
                         </div>
-
-                        <div style={{ display: "flex", gap: "8px" }}>
+                        <div className="edit-actions">
                           <button
                             onClick={saveEdit}
                             disabled={isEditing}
-                            style={{
-                              flex: 1,
-                              padding: "10px",
-                              backgroundColor: isEditing ? "#8c8c8c" : "#000000",
-                              color: "#ffffff",
-                              border: "none",
-                              borderRadius: "6px",
-                              fontSize: "13px",
-                              fontWeight: 500,
-                              cursor: isEditing ? "not-allowed" : "pointer",
-                            }}
+                            className="btn-save"
                           >
                             {isEditing ? "Saving..." : "Save"}
                           </button>
-                          <button
-                            onClick={cancelEdit}
-                            style={{
-                              padding: "10px 16px",
-                              backgroundColor: "#ffffff",
-                              color: "#404040",
-                              border: "1px solid #eaeaea",
-                              borderRadius: "6px",
-                              fontSize: "13px",
-                              fontWeight: 500,
-                              cursor: "pointer",
-                            }}
-                          >
+                          <button onClick={cancelEdit} className="btn-cancel">
                             Cancel
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <div style={{ padding: "20px" }}>
-                        <div style={{ marginBottom: "16px" }}>
-                          <h4
-                            style={{
-                              fontSize: "16px",
-                              fontWeight: 600,
-                              color: "#000000",
-                              margin: 0,
-                              marginBottom: "8px",
-                            }}
-                          >
-                            {p.name}
-                          </h4>
-                          <p
-                            style={{
-                              fontSize: "18px",
-                              fontWeight: 700,
-                              color: "#000000",
-                              margin: 0,
-                              marginBottom: "8px",
-                            }}
-                          >
-                            {formatRp(p.price)}
-                          </p>
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "8px",
-                              marginBottom: "4px",
-                            }}
-                          >
-                            {/* ✅ FALLBACK UNTUK CATEGORY - TAMBAHAN */}
-                            <span
-                              style={{
-                                padding: "4px 10px",
-                                backgroundColor: "#f5f5f5",
-                                borderRadius: "20px",
-                                fontSize: "11px",
-                                fontWeight: 500,
-                                color: "#404040",
-                              }}
-                            >
-                              {p.category || "Makanan"}
-                            </span>
-                            {/* ✅ FALLBACK UNTUK STOCK - TAMBAHAN */}
-                            <span
-                              style={{
-                                padding: "4px 10px",
-                                backgroundColor: (p.stock || 0) > 10 ? "#f5f5f5" : "#fff1f0",
-                                borderRadius: "20px",
-                                fontSize: "11px",
-                                fontWeight: 500,
-                                color: (p.stock || 0) > 10 ? "#404040" : "#cf1322",
-                              }}
-                            >
+                      <>
+                        <div className="product-info">
+                          <h4 className="product-name">{p.name}</h4>
+                          <div className="product-price">{formatRp(p.price)}</div>
+                          <div className="product-meta">
+                            <span className="product-category">{p.category || "Makanan"}</span>
+                            <span className={`product-stock ${(p.stock || 0) <= 5 ? "low" : ""}`}>
                               Stock: {p.stock ?? 0}
                             </span>
                           </div>
                         </div>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "8px",
-                            borderTop: "1px solid #eaeaea",
-                            paddingTop: "16px",
-                          }}
-                        >
-                          <button
-                            onClick={() => openEdit(p)}
-                            style={{
-                              flex: 1,
-                              padding: "8px",
-                              backgroundColor: "#ffffff",
-                              color: "#404040",
-                              border: "1px solid #eaeaea",
-                              borderRadius: "6px",
-                              fontSize: "13px",
-                              fontWeight: 500,
-                              cursor: "pointer",
-                              transition: "all 0.2s",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = "#f5f5f5";
-                              e.currentTarget.style.borderColor = "#000000";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = "#ffffff";
-                              e.currentTarget.style.borderColor = "#eaeaea";
-                            }}
-                          >
+                        <div className="product-actions">
+                          <button onClick={() => openEdit(p)} className="btn-edit">
                             Edit
                           </button>
-                          <button
-                            onClick={() => del(p.id)}
-                            style={{
-                              flex: 1,
-                              padding: "8px",
-                              backgroundColor: "#ffffff",
-                              color: "#cf1322",
-                              border: "1px solid #ffccc7",
-                              borderRadius: "6px",
-                              fontSize: "13px",
-                              fontWeight: 500,
-                              cursor: "pointer",
-                              transition: "all 0.2s",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = "#fff1f0";
-                              e.currentTarget.style.borderColor = "#ff4d4f";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = "#ffffff";
-                              e.currentTarget.style.borderColor = "#ffccc7";
-                            }}
-                          >
+                          <button onClick={() => del(p.id)} className="btn-delete">
                             Delete
                           </button>
                         </div>
-                      </div>
+                      </>
                     )}
                   </div>
                 ))}
@@ -983,89 +422,639 @@ export default function AdminProducts() {
       </main>
 
       {/* Footer */}
-      <footer
-        style={{
-          backgroundColor: "#ffffff",
-          borderTop: "1px solid #eaeaea",
-          padding: "24px 40px",
-          marginTop: "auto",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "32px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "13px",
-                color: "#8c8c8c",
-              }}
-            >
-              © 2024 FoodieDash. All rights reserved.
-            </span>
-            <span
-              style={{
-                fontSize: "13px",
-                color: "#8c8c8c",
-              }}
-            >
-              v1.0.0
-            </span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: "24px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "13px",
-                color: "#8c8c8c",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#000000")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#8c8c8c")}
-            >
-              Privacy Policy
-            </span>
-            <span
-              style={{
-                fontSize: "13px",
-                color: "#8c8c8c",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#000000")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#8c8c8c")}
-            >
-              Terms of Service
-            </span>
-            <span
-              style={{
-                fontSize: "13px",
-                color: "#8c8c8c",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#000000")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#8c8c8c")}
-            >
-              Help
-            </span>
-          </div>
+      <footer className="footer">
+        <div className="footer-left">
+          <span>© 2026 Serein Space. All rights reserved.</span>
+          <span>v1.0.0</span>
+        </div>
+        <div className="footer-right">
+          <span>Privacy Policy</span>
+          <span>Terms of Service</span>
+          <span>Help</span>
         </div>
       </footer>
+
+      <style jsx>{`
+        .admin-products {
+          min-height: 100vh;
+          background: #fff;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          display: flex;
+          flex-direction: column;
+        }
+
+        /* HEADER */
+        .header {
+          background: #fff;
+          border-bottom: 2px solid #000;
+          padding: 16px 32px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+        }
+
+        .logo {
+          width: 44px;
+          height: 44px;
+          background: #000;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-weight: 800;
+          font-size: 20px;
+          letter-spacing: 1px;
+        }
+
+        .brand {
+          font-size: 20px;
+          font-weight: 800;
+          color: #000;
+          margin: 0;
+          letter-spacing: -0.3px;
+        }
+
+        .main-nav {
+          display: flex;
+          gap: 8px;
+          background: #f5f5f5;
+          padding: 4px;
+          border-radius: 40px;
+          border: 1px solid #000;
+        }
+
+        .nav-link {
+          padding: 10px 24px;
+          background: transparent;
+          color: #000;
+          border: none;
+          border-radius: 30px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .nav-link:hover {
+          background: #eaeaea;
+        }
+
+        .nav-link.active {
+          background: #000;
+          color: #fff;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+        }
+
+        .avatar {
+          width: 40px;
+          height: 40px;
+          background: #000;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-weight: 700;
+          font-size: 16px;
+          cursor: pointer;
+        }
+
+        /* MAIN CONTENT */
+        .content {
+          flex: 1;
+          padding: 40px 32px;
+          background: #fafafa;
+        }
+
+        .container {
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .page-header {
+          margin-bottom: 32px;
+        }
+
+        .page-title {
+          font-size: 28px;
+          font-weight: 800;
+          color: #000;
+          margin: 0 0 8px;
+          letter-spacing: -0.5px;
+          text-transform: uppercase;
+        }
+
+        .page-subtitle {
+          font-size: 15px;
+          color: #666;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        /* FORM SECTION */
+        .form-section {
+          background: #fff;
+          border: 2px solid #000;
+          border-radius: 20px;
+          padding: 32px;
+          margin-bottom: 48px;
+        }
+
+        .form-title {
+          font-size: 18px;
+          font-weight: 800;
+          color: #000;
+          margin: 0 0 24px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 1px solid #000;
+          padding-bottom: 12px;
+        }
+
+        .form-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 24px;
+        }
+
+        .form-group.full-width {
+          grid-column: span 2;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 13px;
+          font-weight: 700;
+          color: #000;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .form-input,
+        .form-select {
+          width: 100%;
+          padding: 12px 16px;
+          font-size: 15px;
+          border: 2px solid #000;
+          border-radius: 8px;
+          background: #fff;
+          color: #000;
+          outline: none;
+          box-sizing: border-box;
+          font-weight: 500;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+          border-color: #333;
+          box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
+
+        .form-select {
+          appearance: none;
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 16px center;
+          background-size: 16px;
+        }
+
+        .file-input-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .file-button {
+          padding: 12px 24px;
+          background: #fff;
+          color: #000;
+          border: 2px solid #000;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-transform: uppercase;
+        }
+
+        .file-button:hover {
+          background: #000;
+          color: #fff;
+        }
+
+        .file-name {
+          font-size: 13px;
+          color: #666;
+          font-weight: 500;
+        }
+
+        .form-actions {
+          margin-top: 32px;
+        }
+
+        .btn {
+          padding: 14px 32px;
+          background: #000;
+          color: #fff;
+          border: 2px solid #000;
+          border-radius: 8px;
+          font-size: 15px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .btn:hover:not(:disabled) {
+          background: #333;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn:disabled {
+          background: #999;
+          border-color: #999;
+          cursor: not-allowed;
+        }
+
+        /* PRODUCTS SECTION */
+        .products-section {
+          background: #fff;
+          border: 2px solid #000;
+          border-radius: 20px;
+          padding: 32px;
+        }
+
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid #000;
+        }
+
+        .section-title {
+          font-size: 18px;
+          font-weight: 800;
+          color: #000;
+          margin: 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .product-count {
+          padding: 6px 12px;
+          background: #f5f5f5;
+          border: 1px solid #000;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #000;
+        }
+
+        /* Loading */
+        .loading-state {
+          text-align: center;
+          padding: 60px;
+          background: #fafafa;
+          border: 1px solid #000;
+          border-radius: 12px;
+        }
+
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid #eaeaea;
+          border-top: 3px solid #000;
+          border-radius: 50%;
+          margin: 0 auto 16px;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+          text-align: center;
+          padding: 60px;
+          background: #fafafa;
+          border: 1px solid #000;
+          border-radius: 12px;
+        }
+
+        .empty-icon {
+          font-size: 48px;
+          margin-bottom: 16px;
+        }
+
+        .empty-state h4 {
+          font-size: 16px;
+          font-weight: 700;
+          color: #000;
+          margin: 0 0 8px;
+        }
+
+        .empty-state p {
+          font-size: 14px;
+          color: #666;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        /* Products Grid */
+        .products-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 24px;
+        }
+
+        .product-card {
+          background: #fff;
+          border: 2px solid #000;
+          border-radius: 16px;
+          overflow: hidden;
+          transition: all 0.2s;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .product-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+          width: 100%;
+          height: 180px;
+          background: #f5f5f5;
+          border-bottom: 2px solid #000;
+        }
+
+        .product-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .product-info {
+          padding: 20px;
+          flex: 1;
+        }
+
+        .product-name {
+          font-size: 18px;
+          font-weight: 800;
+          color: #000;
+          margin: 0 0 8px;
+        }
+
+        .product-price {
+          font-size: 20px;
+          font-weight: 800;
+          color: #000;
+          margin: 0 0 12px;
+        }
+
+        .product-meta {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .product-category {
+          padding: 4px 12px;
+          background: #f5f5f5;
+          border: 1px solid #000;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 600;
+          color: #000;
+          text-transform: uppercase;
+        }
+
+        .product-stock {
+          padding: 4px 12px;
+          background: #f5f5f5;
+          border: 1px solid #000;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 600;
+          color: #000;
+        }
+
+        .product-stock.low {
+          background: #fff;
+          border-color: #000;
+          color: #000;
+        }
+
+        .product-actions {
+          display: flex;
+          gap: 8px;
+          padding: 20px;
+          padding-top: 0;
+        }
+
+        .btn-edit,
+        .btn-delete {
+          flex: 1;
+          padding: 10px;
+          border: 2px solid #000;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .btn-edit {
+          background: #fff;
+          color: #000;
+        }
+
+        .btn-edit:hover {
+          background: #000;
+          color: #fff;
+        }
+
+        .btn-delete {
+          background: #fff;
+          color: #000;
+        }
+
+        .btn-delete:hover {
+          background: #000;
+          color: #fff;
+        }
+
+        /* Edit Form inside card */
+        .edit-form {
+          padding: 20px;
+        }
+
+        .edit-field {
+          margin-bottom: 16px;
+        }
+
+        .edit-field label {
+          display: block;
+          font-size: 11px;
+          font-weight: 700;
+          color: #000;
+          margin-bottom: 4px;
+          text-transform: uppercase;
+        }
+
+        .edit-field input,
+        .edit-field select {
+          width: 100%;
+          padding: 10px 12px;
+          border: 2px solid #000;
+          border-radius: 6px;
+          font-size: 14px;
+          background: #fff;
+          color: #000;
+          font-weight: 500;
+        }
+
+        .edit-actions {
+          display: flex;
+          gap: 8px;
+          margin-top: 20px;
+        }
+
+        .btn-save,
+        .btn-cancel {
+          flex: 1;
+          padding: 10px;
+          border: 2px solid #000;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-transform: uppercase;
+        }
+
+        .btn-save {
+          background: #000;
+          color: #fff;
+        }
+
+        .btn-save:hover:not(:disabled) {
+          background: #333;
+        }
+
+        .btn-save:disabled {
+          background: #999;
+          border-color: #999;
+          cursor: not-allowed;
+        }
+
+        .btn-cancel {
+          background: #fff;
+          color: #000;
+        }
+
+        .btn-cancel:hover {
+          background: #000;
+          color: #fff;
+        }
+
+        /* FOOTER */
+        .footer {
+          background: #fff;
+          border-top: 2px solid #000;
+          padding: 20px 32px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 13px;
+          color: #666;
+          font-weight: 500;
+        }
+
+        .footer-left,
+        .footer-right {
+          display: flex;
+          gap: 24px;
+        }
+
+        .footer-right span {
+          cursor: pointer;
+          transition: color 0.2s;
+        }
+
+        .footer-right span:hover {
+          color: #000;
+          text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .header {
+            flex-wrap: wrap;
+            gap: 16px;
+          }
+          .main-nav {
+            order: 3;
+            width: 100%;
+            justify-content: center;
+          }
+          .form-grid {
+            grid-template-columns: 1fr;
+          }
+          .form-group.full-width {
+            grid-column: span 1;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .page-title {
+            font-size: 24px;
+          }
+          .products-grid {
+            grid-template-columns: 1fr;
+          }
+          .footer {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+          }
+          .footer-left,
+          .footer-right {
+            flex-wrap: wrap;
+            justify-content: center;
+          }
+        }
+      `}</style>
     </div>
   );
 }

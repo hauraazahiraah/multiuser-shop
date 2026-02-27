@@ -33,10 +33,8 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ AMBIL SESSION UNTUK CEK ROLE
       const session = await fetch("/api/auth/session").then(res => res.json());
       
-      // ✅ REDIRECT BERDASARKAN ROLE
       if (session?.user?.role === "ADMIN") {
         window.location.href = "/dashboard/admin";
       } else {
@@ -49,181 +47,212 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#ffffff",
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "400px",
-          width: "100%",
-          padding: "48px 32px",
-          backgroundColor: "#ffffff",
-        }}
-      >
-        <div style={{ marginBottom: "48px" }}>
-          <h1
-            style={{
-              fontSize: "32px",
-              fontWeight: 600,
-              color: "#000000",
-              margin: 0,
-              marginBottom: "8px",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Welcome back
-          </h1>
-          <p
-            style={{
-              fontSize: "15px",
-              color: "#6b6b6b",
-              margin: 0,
-              fontWeight: 400,
-            }}
-          >
-            Please enter your details to sign in
-          </p>
+    <div className="login-page">
+      <div className="login-card">
+        <h2 className="login-title">LOGIN</h2>
+        <p className="login-sub">Please enter your details to sign in</p>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <div className="form-group">
+          <label className="form-label">EMAIL</label>
+          <input
+            type="email"
+            placeholder="hello@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-input"
+          />
         </div>
 
-        {error && (
-          <div
-            style={{
-              backgroundColor: "#fff1f0",
-              border: "1px solid #ffccc7",
-              borderRadius: "8px",
-              padding: "12px",
-              marginBottom: "24px",
-              color: "#cf1322",
-              fontSize: "14px",
-            }}
-          >
-            {error}
-          </div>
-        )}
-
-        <div style={{ marginBottom: "32px" }}>
-          <div style={{ marginBottom: "24px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "14px",
-                fontWeight: 500,
-                color: "#1a1a1a",
-                marginBottom: "8px",
-              }}
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              placeholder="hello@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 16px",
-                fontSize: "15px",
-                border: "1.5px solid #e5e5e5",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-                color: "#000000",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "32px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "14px",
-                fontWeight: 500,
-                color: "#1a1a1a",
-                marginBottom: "8px",
-              }}
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 16px",
-                fontSize: "15px",
-                border: "1.5px solid #e5e5e5",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-                color: "#000000",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
-
-          <button
-            onClick={handleLogin}
-            disabled={isLoading}
-            style={{
-              width: "100%",
-              padding: "12px 24px",
-              backgroundColor: isLoading ? "#8c8c8c" : "#000000",
-              color: "#ffffff",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "15px",
-              fontWeight: 600,
-              cursor: isLoading ? "not-allowed" : "pointer",
-            }}
-          >
-            {isLoading ? "Signing in..." : "Sign in"}
-          </button>
+        <div className="form-group">
+          <label className="form-label">PASSWORD</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="form-input"
+          />
         </div>
 
-        <div
-          style={{
-            textAlign: "center",
-            borderTop: "1px solid #f0f0f0",
-            paddingTop: "32px",
-          }}
+        <button
+          className="login-btn"
+          onClick={handleLogin}
+          disabled={isLoading}
         >
-          <p
-            style={{
-              fontSize: "15px",
-              color: "#6b6b6b",
-              margin: 0,
-            }}
-          >
+          {isLoading ? "SIGNING IN..." : "SIGN IN"}
+        </button>
+
+        <div className="register-link">
+          <p>
             Don't have an account?{" "}
-            <button
-              onClick={() => router.push("/auth/register")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#000000",
-                textDecoration: "underline",
-                cursor: "pointer",
-                padding: 0,
-                font: "inherit",
-                fontWeight: 600,
-              }}
-            >
+            <button onClick={() => router.push("/auth/register")}>
               Create an account
             </button>
           </p>
         </div>
       </div>
+
+      <style jsx>{`
+        .login-page {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #fafafa;
+          padding: 16px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .login-card {
+          max-width: 360px;
+          width: 100%;
+          background: #fff;
+          border: 2px solid #000;
+          border-radius: 20px;
+          padding: 32px 28px;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .login-title {
+          font-size: 24px;
+          font-weight: 800;
+          color: #000;
+          margin: 0 0 6px;
+          letter-spacing: -0.3px;
+          text-transform: uppercase;
+        }
+
+        .login-sub {
+          font-size: 14px;
+          color: #666;
+          margin: 0 0 28px;
+          font-weight: 500;
+        }
+
+        .error-message {
+          background: #fff1f0;
+          border: 2px solid #000;
+          border-radius: 6px;
+          padding: 10px 14px;
+          margin-bottom: 20px;
+          color: #000;
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 12px;
+          font-weight: 700;
+          color: #000;
+          margin-bottom: 6px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: 12px 16px;
+          font-size: 15px;
+          border: 2px solid #000;
+          border-radius: 10px;
+          background: #fff;
+          color: #000;
+          outline: none;
+          box-sizing: border-box;
+          font-weight: 500;
+        }
+
+        .form-input:focus {
+          border-color: #333;
+          box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+        }
+
+        .form-input::placeholder {
+          color: #999;
+          font-weight: 400;
+        }
+
+        .login-btn {
+          width: 100%;
+          padding: 14px;
+          background: #000;
+          color: #fff;
+          border: 2px solid #000;
+          border-radius: 10px;
+          font-size: 15px;
+          font-weight: 800;
+          cursor: pointer;
+          margin: 10px 0 28px;
+          transition: all 0.2s;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .login-btn:hover:not(:disabled) {
+          background: #333;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .login-btn:disabled {
+          background: #999;
+          border-color: #999;
+          cursor: not-allowed;
+        }
+
+        .register-link {
+          text-align: center;
+          border-top: 2px solid #000;
+          padding-top: 20px;
+        }
+
+        .register-link p {
+          font-size: 14px;
+          color: #666;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        .register-link button {
+          background: none;
+          border: none;
+          color: #000;
+          text-decoration: underline;
+          cursor: pointer;
+          padding: 0;
+          font: inherit;
+          font-weight: 700;
+        }
+
+        .register-link button:hover {
+          color: #333;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+          .login-card {
+            padding: 28px 20px;
+          }
+          .login-title {
+            font-size: 22px;
+          }
+          .form-input {
+            padding: 10px 14px;
+            font-size: 14px;
+          }
+          .login-btn {
+            padding: 12px;
+            font-size: 14px;
+          }
+        }
+      `}</style>
     </div>
   );
 }

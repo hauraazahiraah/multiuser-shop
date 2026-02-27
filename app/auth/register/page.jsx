@@ -1,4 +1,4 @@
-"use client"; // <-- INI WAJIB!
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,6 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("USER");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
@@ -27,7 +26,12 @@ export default function RegisterPage() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ 
+          name, 
+          email, 
+          password, 
+          role: "USER"
+        }),
       });
 
       const data = await res.json();
@@ -46,269 +50,218 @@ export default function RegisterPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#ffffff",
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "400px",
-          width: "100%",
-          padding: "48px 32px",
-          backgroundColor: "#ffffff",
-        }}
-      >
-        <div style={{ marginBottom: "48px" }}>
-          <h1
-            style={{
-              fontSize: "32px",
-              fontWeight: 600,
-              color: "#000000",
-              margin: 0,
-              marginBottom: "8px",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Create account
-          </h1>
-          <p
-            style={{
-              fontSize: "15px",
-              color: "#6b6b6b",
-              margin: 0,
-              fontWeight: 400,
-            }}
-          >
-            Please fill in your details to get started
-          </p>
+    <div className="register-page">
+      <div className="register-card">
+        <h2 className="register-title">REGISTER</h2>
+        <p className="register-sub">Please fill in your details to get started</p>
+
+        <div className="form-group">
+          <label className="form-label">FULL NAME</label>
+          <input
+            type="text"
+            placeholder="John Doe"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="form-input"
+          />
         </div>
 
-        <div style={{ marginBottom: "32px" }}>
-          {/* Name */}
-          <div style={{ marginBottom: "24px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "14px",
-                fontWeight: 500,
-                color: "#1a1a1a",
-                marginBottom: "8px",
-              }}
-            >
-              Full name
-            </label>
-            <input
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 16px",
-                fontSize: "15px",
-                border: "1.5px solid #e5e5e5",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-                color: "#000000",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#000000")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e5e5")}
-            />
-          </div>
-
-          {/* Email */}
-          <div style={{ marginBottom: "24px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "14px",
-                fontWeight: 500,
-                color: "#1a1a1a",
-                marginBottom: "8px",
-              }}
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              placeholder="hello@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 16px",
-                fontSize: "15px",
-                border: "1.5px solid #e5e5e5",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-                color: "#000000",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#000000")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e5e5")}
-            />
-          </div>
-
-          {/* Password */}
-          <div style={{ marginBottom: "24px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "14px",
-                fontWeight: 500,
-                color: "#1a1a1a",
-                marginBottom: "8px",
-              }}
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 16px",
-                fontSize: "15px",
-                border: "1.5px solid #e5e5e5",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-                color: "#000000",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#000000")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e5e5")}
-            />
-            <p
-              style={{
-                fontSize: "12px",
-                color: "#8c8c8c",
-                marginTop: "6px",
-                marginBottom: 0,
-              }}
-            >
-              Minimum 6 characters
-            </p>
-          </div>
-
-          {/* Role */}
-          <div style={{ marginBottom: "32px" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "14px",
-                fontWeight: 500,
-                color: "#1a1a1a",
-                marginBottom: "8px",
-              }}
-            >
-              Account type
-            </label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 16px",
-                fontSize: "15px",
-                border: "1.5px solid #e5e5e5",
-                borderRadius: "8px",
-                backgroundColor: "#ffffff",
-                color: "#000000",
-                outline: "none",
-                boxSizing: "border-box",
-                cursor: "pointer",
-                appearance: "none",
-                backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "right 16px center",
-                backgroundSize: "16px",
-              }}
-              onFocus={(e) => (e.target.style.borderColor = "#000000")}
-              onBlur={(e) => (e.target.style.borderColor = "#e5e5e5")}
-            >
-              <option value="USER">User account</option>
-              <option value="ADMIN">Admin account</option>
-            </select>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            onClick={handleRegister}
-            disabled={isLoading}
-            style={{
-              width: "100%",
-              padding: "12px 24px",
-              backgroundColor: isLoading ? "#8c8c8c" : "#000000",
-              color: "#ffffff",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "15px",
-              fontWeight: 600,
-              cursor: isLoading ? "not-allowed" : "pointer",
-              transition: "background-color 0.2s",
-              letterSpacing: "0.3px",
-            }}
-            onMouseEnter={(e) => {
-              if (!isLoading) e.currentTarget.style.backgroundColor = "#333333";
-            }}
-            onMouseLeave={(e) => {
-              if (!isLoading) e.currentTarget.style.backgroundColor = "#000000";
-            }}
-          >
-            {isLoading ? "Creating account..." : "Create account"}
-          </button>
+        <div className="form-group">
+          <label className="form-label">EMAIL</label>
+          <input
+            type="email"
+            placeholder="hello@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-input"
+          />
         </div>
 
-        {/* Link to Login */}
-        <div
-          style={{
-            textAlign: "center",
-            borderTop: "1px solid #f0f0f0",
-            paddingTop: "32px",
-          }}
+        <div className="form-group">
+          <label className="form-label">PASSWORD</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="form-input"
+          />
+          <p className="input-hint">Minimum 6 characters</p>
+        </div>
+
+        <button
+          className="register-btn"
+          onClick={handleRegister}
+          disabled={isLoading}
         >
-          <p
-            style={{
-              fontSize: "15px",
-              color: "#6b6b6b",
-              margin: 0,
-            }}
-          >
+          {isLoading ? "SIGNING UP..." : "SIGN UP"}
+        </button>
+
+        <div className="login-link">
+          <p>
             Already have an account?{" "}
-            <button
-              onClick={() => router.push("/auth/login")}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#000000",
-                textDecoration: "underline",
-                textUnderlineOffset: "4px",
-                cursor: "pointer",
-                padding: 0,
-                font: "inherit",
-                fontWeight: 600,
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#404040")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#000000")}
-            >
+            <button onClick={() => router.push("/auth/login")}>
               Sign in
             </button>
           </p>
         </div>
       </div>
+
+      <style jsx>{`
+        .register-page {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #fafafa;
+          padding: 16px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .register-card {
+          max-width: 360px;
+          width: 100%;
+          background: #fff;
+          border: 2px solid #000;
+          border-radius: 20px;
+          padding: 32px 28px;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .register-title {
+          font-size: 24px;
+          font-weight: 800;
+          color: #000;
+          margin: 0 0 6px;
+          letter-spacing: -0.3px;
+          text-transform: uppercase;
+        }
+
+        .register-sub {
+          font-size: 14px;
+          color: #666;
+          margin: 0 0 28px;
+          font-weight: 500;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 12px;
+          font-weight: 700;
+          color: #000;
+          margin-bottom: 6px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: 12px 16px;
+          font-size: 15px;
+          border: 2px solid #000;
+          border-radius: 10px;
+          background: #fff;
+          color: #000;
+          outline: none;
+          box-sizing: border-box;
+          font-weight: 500;
+        }
+
+        .form-input:focus {
+          border-color: #333;
+          box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+        }
+
+        .form-input::placeholder {
+          color: #999;
+          font-weight: 400;
+        }
+
+        .input-hint {
+          font-size: 12px;
+          color: #666;
+          margin: 6px 0 0;
+          font-weight: 500;
+        }
+
+        .register-btn {
+          width: 100%;
+          padding: 14px;
+          background: #000;
+          color: #fff;
+          border: 2px solid #000;
+          border-radius: 10px;
+          font-size: 15px;
+          font-weight: 800;
+          cursor: pointer;
+          margin: 10px 0 28px;
+          transition: all 0.2s;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .register-btn:hover:not(:disabled) {
+          background: #333;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .register-btn:disabled {
+          background: #999;
+          border-color: #999;
+          cursor: not-allowed;
+        }
+
+        .login-link {
+          text-align: center;
+          border-top: 2px solid #000;
+          padding-top: 20px;
+        }
+
+        .login-link p {
+          font-size: 14px;
+          color: #666;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        .login-link button {
+          background: none;
+          border: none;
+          color: #000;
+          text-decoration: underline;
+          cursor: pointer;
+          padding: 0;
+          font: inherit;
+          font-weight: 700;
+        }
+
+        .login-link button:hover {
+          color: #333;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+          .register-card {
+            padding: 28px 20px;
+          }
+          .register-title {
+            font-size: 22px;
+          }
+          .form-input {
+            padding: 10px 14px;
+            font-size: 14px;
+          }
+          .register-btn {
+            padding: 12px;
+            font-size: 14px;
+          }
+        }
+      `}</style>
     </div>
   );
 }
