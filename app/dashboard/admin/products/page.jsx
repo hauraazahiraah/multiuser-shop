@@ -181,46 +181,15 @@ export default function AdminProducts() {
 
   return (
     <div className="admin-products">
-      {/* Header with Navigation */}
-      <header className="header">
-        <div className="header-left" onClick={() => router.push("/dashboard/admin")}>
-          <div className="logo">SS</div>
-          <h1 className="brand">Serein Space</h1>
-        </div>
-
-        <nav className="main-nav">
-          <button
-            className="nav-link"
-            onClick={() => router.push("/dashboard/admin")}
-          >
-            Dashboard
-          </button>
-          <button
-            className="nav-link active"
-            onClick={() => router.push("/dashboard/admin/products")}
-          >
-            Products
-          </button>
-          <button
-            className="nav-link"
-            onClick={() => router.push("/dashboard/admin/orders")}
-          >
-            Orders Report
-          </button>
-        </nav>
-
-        <div className="header-right">
-          <div className="avatar">A</div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="content">
         <div className="container">
           {/* Page Title */}
           <div className="page-header">
             <h2 className="page-title">MANAGE PRODUCTS</h2>
-            <p className="page-subtitle">Add, edit, and remove food items from your menu</p>
+            <p className="page-subtitle">
+              Add, edit, and remove food items from your menu
+            </p>
           </div>
 
           {/* Add Product Form */}
@@ -281,7 +250,9 @@ export default function AdminProducts() {
                   <label htmlFor="file-upload" className="file-button">
                     Choose File
                   </label>
-                  <span className="file-name">{file ? file.name : "No file chosen"}</span>
+                  <span className="file-name">
+                    {file ? file.name : "No file chosen"}
+                  </span>
                   <input
                     id="file-upload"
                     type="file"
@@ -395,10 +366,18 @@ export default function AdminProducts() {
                       <>
                         <div className="product-info">
                           <h4 className="product-name">{p.name}</h4>
-                          <div className="product-price">{formatRp(p.price)}</div>
+                          <div className="product-price">
+                            {formatRp(p.price)}
+                          </div>
                           <div className="product-meta">
-                            <span className="product-category">{p.category || "Makanan"}</span>
-                            <span className={`product-stock ${(p.stock || 0) <= 5 ? "low" : ""}`}>
+                            <span className="product-category">
+                              {p.category || "Makanan"}
+                            </span>
+                            <span
+                              className={`product-stock ${
+                                (p.stock || 0) <= 5 ? "low" : ""
+                              }`}
+                            >
                               Stock: {p.stock ?? 0}
                             </span>
                           </div>
@@ -421,119 +400,14 @@ export default function AdminProducts() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-left">
-          <span>© 2026 Serein Space. All rights reserved.</span>
-          <span>v1.0.0</span>
-        </div>
-        <div className="footer-right">
-          <span>Privacy Policy</span>
-          <span>Terms of Service</span>
-          <span>Help</span>
-        </div>
-      </footer>
-
       <style jsx>{`
         .admin-products {
           min-height: 100vh;
           background: #fff;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            sans-serif;
           display: flex;
           flex-direction: column;
-        }
-
-        /* HEADER */
-        .header {
-          background: #fff;
-          border-bottom: 2px solid #000;
-          padding: 16px 32px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: sticky;
-          top: 0;
-          z-index: 50;
-        }
-
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          cursor: pointer;
-        }
-
-        .logo {
-          width: 44px;
-          height: 44px;
-          background: #000;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          font-weight: 800;
-          font-size: 20px;
-          letter-spacing: 1px;
-        }
-
-        .brand {
-          font-size: 20px;
-          font-weight: 800;
-          color: #000;
-          margin: 0;
-          letter-spacing: -0.3px;
-        }
-
-        .main-nav {
-          display: flex;
-          gap: 8px;
-          background: #f5f5f5;
-          padding: 4px;
-          border-radius: 40px;
-          border: 1px solid #000;
-        }
-
-        .nav-link {
-          padding: 10px 24px;
-          background: transparent;
-          color: #000;
-          border: none;
-          border-radius: 30px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .nav-link:hover {
-          background: #eaeaea;
-        }
-
-        .nav-link.active {
-          background: #000;
-          color: #fff;
-        }
-
-        .header-right {
-          display: flex;
-          align-items: center;
-        }
-
-        .avatar {
-          width: 40px;
-          height: 40px;
-          background: #000;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          font-weight: 700;
-          font-size: 16px;
-          cursor: pointer;
         }
 
         /* MAIN CONTENT */
@@ -625,7 +499,7 @@ export default function AdminProducts() {
         .form-input:focus,
         .form-select:focus {
           border-color: #333;
-          box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+          box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
         }
 
         .form-select {
@@ -690,7 +564,7 @@ export default function AdminProducts() {
         .btn:hover:not(:disabled) {
           background: #333;
           transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .btn:disabled {
@@ -755,8 +629,12 @@ export default function AdminProducts() {
         }
 
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         .empty-state {
@@ -805,7 +683,7 @@ export default function AdminProducts() {
 
         .product-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
 
         .product-image {
@@ -988,46 +866,8 @@ export default function AdminProducts() {
           color: #fff;
         }
 
-        /* FOOTER */
-        .footer {
-          background: #fff;
-          border-top: 2px solid #000;
-          padding: 20px 32px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 13px;
-          color: #666;
-          font-weight: 500;
-        }
-
-        .footer-left,
-        .footer-right {
-          display: flex;
-          gap: 24px;
-        }
-
-        .footer-right span {
-          cursor: pointer;
-          transition: color 0.2s;
-        }
-
-        .footer-right span:hover {
-          color: #000;
-          text-decoration: underline;
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
-          .header {
-            flex-wrap: wrap;
-            gap: 16px;
-          }
-          .main-nav {
-            order: 3;
-            width: 100%;
-            justify-content: center;
-          }
           .form-grid {
             grid-template-columns: 1fr;
           }
@@ -1042,16 +882,6 @@ export default function AdminProducts() {
           }
           .products-grid {
             grid-template-columns: 1fr;
-          }
-          .footer {
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-          }
-          .footer-left,
-          .footer-right {
-            flex-wrap: wrap;
-            justify-content: center;
           }
         }
       `}</style>

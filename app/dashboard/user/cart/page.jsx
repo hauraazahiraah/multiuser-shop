@@ -10,10 +10,32 @@ export default function CartPage() {
   const router = useRouter();
   const { cartItems, loadCart, updateQuantity, removeFromCart, cartCount } = useCart();
   const [isHoveringLogout, setIsHoveringLogout] = useState(false);
+  
+  const [savedNotes, setSavedNotes] = useState({});
+  const [editingMode, setEditingMode] = useState({});
+  const [tempNotes, setTempNotes] = useState({});
 
   useEffect(() => {
     loadCart();
   }, []);
+
+  useEffect(() => {
+    const newTemp = {};
+    const newSaved = {};
+    const newEditing = {};
+    cartItems.forEach(item => {
+      newTemp[item.id] = tempNotes[item.id] || "";
+      newSaved[item.id] = savedNotes[item.id] || "";
+      if (editingMode[item.id] === undefined) {
+        newEditing[item.id] = true;
+      } else {
+        newEditing[item.id] = editingMode[item.id];
+      }
+    });
+    setTempNotes(newTemp);
+    setSavedNotes(newSaved);
+    setEditingMode(newEditing);
+  }, [cartItems]);
 
   const formatRupiah = (num) => {
     return new Intl.NumberFormat("id-ID", {
@@ -29,7 +51,15 @@ export default function CartPage() {
     0
   );
 
+  // 🔥 TAMBAHAN LOGIC STOCK
   const handleQuantityChange = async (cartId, currentQty, change) => {
+    const item = cartItems.find(i => i.id === cartId);
+
+    if (change > 0 && item?.product?.stock === 0) {
+      alert("Produk ini sudah habis!");
+      return;
+    }
+
     const newQty = currentQty + change;
     if (newQty <= 0) {
       if (confirm("Remove item from cart?")) {
@@ -44,6 +74,35 @@ export default function CartPage() {
     await signOut({ redirect: true, callbackUrl: "/auth/login" });
   };
 
+  const handleSaveNote = (itemId) => {
+    setSavedNotes(prev => ({
+      ...prev,
+      [itemId]: tempNotes[itemId] || ""
+    }));
+    setEditingMode(prev => ({
+      ...prev,
+      [itemId]: false
+    }));
+  };
+
+  const handleEditNote = (itemId) => {
+    setTempNotes(prev => ({
+      ...prev,
+      [itemId]: savedNotes[itemId] || ""
+    }));
+    setEditingMode(prev => ({
+      ...prev,
+      [itemId]: true
+    }));
+  };
+
+  const handleTempNoteChange = (itemId, value) => {
+    setTempNotes(prev => ({
+      ...prev,
+      [itemId]: value
+    }));
+  };
+
   return (
     <div className="cart-page">
       {/* Header */}
@@ -54,22 +113,13 @@ export default function CartPage() {
         </div>
 
         <nav className="main-nav">
-          <button
-            className="nav-link"
-            onClick={() => router.push("/dashboard/user")}
-          >
+          <button className="nav-link" onClick={() => router.push("/dashboard/user")}>
             Home
           </button>
-          <button
-            className="nav-link"
-            onClick={() => router.push("/dashboard/user/products")}
-          >
+          <button className="nav-link" onClick={() => router.push("/dashboard/user/products")}>
             Products
           </button>
-          <button
-            className="nav-link"
-            onClick={() => router.push("/dashboard/user/history")}
-          >
+          <button className="nav-link" onClick={() => router.push("/dashboard/user/history")}>
             Orders
           </button>
         </nav>
@@ -120,7 +170,7 @@ export default function CartPage() {
           ) : (
             <div className="cart-content">
               <div className="cart-items">
-                {cartItems.map((item, index) => (
+                {cartItems.map((item) => (
                   <div key={item.id} className="cart-item">
                     <div className="item-image">
                       {item.product.imageUrl ? (
@@ -129,11 +179,31 @@ export default function CartPage() {
                         <span className="image-placeholder">🍽️</span>
                       )}
                     </div>
+
                     <div className="item-details">
                       <h4 className="item-name">{item.product.name}</h4>
                       <p className="item-category">{item.product.category}</p>
                       <p className="item-price">{formatRupiah(item.product.price)}</p>
+
+                      {/* 🔥 WARNING */}
+                      {item.product.stock === 0 && (
+                        <div style={{
+                          marginTop: "6px",
+                          color: "red",
+                          fontSize: "13px",
+                          fontWeight: "600"
+                        }}>
+                          ⚠️ Maaf produk ini sudah habis
+                        </div>
+                      )}
+
+                      {savedNotes[item.id] && !editingMode[item.id] && (
+                        <div className="saved-note-display">
+                          📝 <strong>Catatan:</strong> {savedNotes[item.id]}
+                        </div>
+                      )}
                     </div>
+
                     <div className="item-actions">
                       <div className="quantity-control">
                         <button
@@ -142,17 +212,22 @@ export default function CartPage() {
                         >
                           −
                         </button>
+
                         <span className="qty-value">{item.quantity}</span>
+
                         <button
                           className="qty-btn"
                           onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
+                          disabled={item.product.stock === 0}
                         >
                           +
                         </button>
                       </div>
+
                       <span className="item-subtotal">
                         {formatRupiah(item.product.price * item.quantity)}
                       </span>
+
                       <button
                         className="remove-btn"
                         onClick={() => {
@@ -165,6 +240,37 @@ export default function CartPage() {
                         Remove
                       </button>
                     </div>
+
+                    {editingMode[item.id] ? (
+                      <div className="item-note">
+                        <label className="note-label">📝 Edit / Tambah Catatan</label>
+                        <div className="note-input-wrapper">
+                          <textarea
+                            className="note-input"
+                            rows="2"
+                            value={tempNotes[item.id] || ""}
+                            onChange={(e) => handleTempNoteChange(item.id, e.target.value)}
+                          />
+                          <button
+                            className="save-note-btn"
+                            onClick={() => handleSaveNote(item.id)}
+                          >
+                            💾 Save
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      savedNotes[item.id] && (
+                        <div className="edit-note-wrapper">
+                          <button
+                            className="edit-note-btn"
+                            onClick={() => handleEditNote(item.id)}
+                          >
+                            ✏️ Edit Catatan
+                          </button>
+                        </div>
+                      )
+                    )}
                   </div>
                 ))}
               </div>
@@ -174,9 +280,20 @@ export default function CartPage() {
                   <p className="total-label">Total Price</p>
                   <h2 className="total-value">{formatRupiah(total)}</h2>
                 </div>
+
+                {/* 🔥 FIX CHECKOUT */}
                 <button
                   className="checkout-btn"
-                  onClick={() => router.push("/dashboard/user/checkout")}
+                  onClick={() => {
+                    const hasOutOfStock = cartItems.some(item => item.product.stock === 0);
+
+                    if (hasOutOfStock) {
+                      alert("Ada produk yang sudah habis, hapus dulu dari keranjang!");
+                      return;
+                    }
+
+                    router.push("/dashboard/user/checkout");
+                  }}
                 >
                   Checkout
                 </button>
@@ -228,14 +345,12 @@ export default function CartPage() {
           top: 0;
           z-index: 50;
         }
-
         .header-left {
           display: flex;
           align-items: center;
           gap: 12px;
           cursor: pointer;
         }
-
         .logo {
           width: 44px;
           height: 44px;
@@ -247,17 +362,13 @@ export default function CartPage() {
           color: #fff;
           font-weight: 800;
           font-size: 20px;
-          letter-spacing: 1px;
         }
-
         .brand {
           font-size: 20px;
           font-weight: 800;
           color: #000;
           margin: 0;
-          letter-spacing: -0.3px;
         }
-
         .main-nav {
           display: flex;
           gap: 8px;
@@ -266,7 +377,6 @@ export default function CartPage() {
           border-radius: 40px;
           border: 1px solid #000;
         }
-
         .nav-link {
           padding: 10px 24px;
           background: transparent;
@@ -276,26 +386,16 @@ export default function CartPage() {
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
         }
-
         .nav-link:hover {
           background: #eaeaea;
         }
-
-        .nav-link.active {
-          background: #000;
-          color: #fff;
-        }
-
         .header-right {
           display: flex;
           align-items: center;
           gap: 16px;
         }
-
         .cart-icon {
           position: relative;
           padding: 10px;
@@ -305,7 +405,6 @@ export default function CartPage() {
           cursor: pointer;
           font-size: 20px;
         }
-
         .cart-badge {
           position: absolute;
           top: -5px;
@@ -321,7 +420,6 @@ export default function CartPage() {
           align-items: center;
           justify-content: center;
         }
-
         .logout-btn {
           display: flex;
           align-items: center;
@@ -334,16 +432,11 @@ export default function CartPage() {
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
         }
-
         .logout-btn:hover {
           background: #000;
           color: #fff;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
         .avatar {
           width: 40px;
           height: 40px;
@@ -354,8 +447,6 @@ export default function CartPage() {
           justify-content: center;
           color: #fff;
           font-weight: 700;
-          font-size: 16px;
-          cursor: pointer;
         }
 
         /* MAIN CONTENT */
@@ -364,12 +455,10 @@ export default function CartPage() {
           padding: 40px 32px;
           background: #fafafa;
         }
-
         .container {
           max-width: 1000px;
           margin: 0 auto;
         }
-
         .breadcrumb {
           display: flex;
           align-items: center;
@@ -377,78 +466,17 @@ export default function CartPage() {
           margin-bottom: 24px;
           font-size: 14px;
           color: #666;
-          font-weight: 500;
         }
-
-        .breadcrumb span {
-          cursor: pointer;
-          transition: color 0.2s;
-        }
-
-        .breadcrumb span:hover {
-          color: #000;
-        }
-
         .breadcrumb .current {
           color: #000;
           font-weight: 700;
         }
-
         .page-title {
           font-size: 28px;
           font-weight: 800;
           color: #000;
           margin-bottom: 24px;
-          letter-spacing: -0.5px;
           text-transform: uppercase;
-        }
-
-        /* Empty State */
-        .empty-state {
-          background: #fff;
-          border: 2px solid #000;
-          border-radius: 20px;
-          padding: 60px 40px;
-          text-align: center;
-        }
-
-        .empty-icon {
-          font-size: 64px;
-          margin-bottom: 16px;
-        }
-
-        .empty-state h3 {
-          font-size: 18px;
-          font-weight: 700;
-          color: #000;
-          margin: 0 0 8px;
-        }
-
-        .empty-state p {
-          font-size: 14px;
-          color: #666;
-          margin: 0 0 24px;
-          font-weight: 500;
-        }
-
-        .primary-btn {
-          padding: 12px 32px;
-          background: #000;
-          color: #fff;
-          border: 2px solid #000;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .primary-btn:hover {
-          background: #333;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         /* Cart Items */
@@ -457,25 +485,22 @@ export default function CartPage() {
           flex-direction: column;
           gap: 24px;
         }
-
         .cart-items {
           background: #fff;
           border: 2px solid #000;
           border-radius: 20px;
           overflow: hidden;
         }
-
         .cart-item {
           display: flex;
+          flex-wrap: wrap;
           padding: 24px;
           gap: 24px;
-          align-items: center;
+          align-items: flex-start;
         }
-
         .cart-item:not(:last-child) {
           border-bottom: 1px solid #000;
         }
-
         .item-image {
           width: 100px;
           height: 100px;
@@ -485,51 +510,49 @@ export default function CartPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          overflow: hidden;
         }
-
         .item-image img {
           width: 100%;
           height: 100%;
           object-fit: cover;
         }
-
         .image-placeholder {
           font-size: 40px;
-          color: #999;
         }
-
         .item-details {
           flex: 1;
+          min-width: 150px;
         }
-
         .item-name {
           font-size: 18px;
           font-weight: 700;
-          color: #000;
           margin: 0 0 4px;
         }
-
         .item-category {
           font-size: 14px;
           color: #666;
           margin: 0 0 8px;
-          font-weight: 500;
         }
-
         .item-price {
           font-size: 16px;
           font-weight: 700;
-          color: #000;
           margin: 0;
         }
-
+        .saved-note-display {
+          margin-top: 8px;
+          font-size: 13px;
+          background: #f0f0f0;
+          padding: 6px 10px;
+          border-radius: 6px;
+          color: #000;
+          border-left: 3px solid #000;
+        }
         .item-actions {
           display: flex;
           align-items: center;
           gap: 24px;
+          flex-wrap: wrap;
         }
-
         .quantity-control {
           display: flex;
           align-items: center;
@@ -537,7 +560,6 @@ export default function CartPage() {
           border-radius: 8px;
           overflow: hidden;
         }
-
         .qty-btn {
           width: 36px;
           height: 36px;
@@ -546,60 +568,98 @@ export default function CartPage() {
           border-right: 2px solid #000;
           font-size: 18px;
           font-weight: 700;
-          color: #000;
           cursor: pointer;
-          transition: background 0.2s;
         }
-
         .qty-btn:last-child {
           border-right: none;
           border-left: 2px solid #000;
         }
-
-        .qty-btn:hover {
-          background: #f0f0f0;
-        }
-
         .qty-value {
           width: 50px;
           height: 36px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 14px;
-          font-weight: 600;
-          color: #000;
-          background: #fff;
         }
-
         .item-subtotal {
           font-size: 18px;
           font-weight: 800;
-          color: #000;
           min-width: 120px;
           text-align: right;
         }
-
         .remove-btn {
           display: flex;
           align-items: center;
           gap: 4px;
           padding: 8px 16px;
           background: transparent;
-          color: #666;
           border: 2px solid #000;
           border-radius: 8px;
-          font-size: 13px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
-          text-transform: uppercase;
         }
-
         .remove-btn:hover {
           background: #000;
           color: #fff;
-          border-color: #000;
+        }
+
+        /* Kolom komentar + save */
+        .item-note {
+          width: 100%;
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 1px dashed #ccc;
+        }
+        .note-label {
+          display: block;
+          font-size: 13px;
+          font-weight: 600;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+        .note-input-wrapper {
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+        }
+        .note-input {
+          flex: 1;
+          padding: 10px 12px;
+          font-size: 14px;
+          font-family: inherit;
+          border: 1px solid #000;
+          border-radius: 8px;
+          resize: vertical;
+        }
+        .save-note-btn {
+          padding: 10px 20px;
+          background: #000;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+        .save-note-btn:hover {
+          background: #333;
+        }
+        .edit-note-wrapper {
+          width: 100%;
+          margin-top: 12px;
+          text-align: right;
+        }
+        .edit-note-btn {
+          padding: 6px 16px;
+          background: transparent;
+          border: 1px solid #000;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+        .edit-note-btn:hover {
+          background: #f0f0f0;
         }
 
         /* Checkout Card */
@@ -612,26 +672,17 @@ export default function CartPage() {
           justify-content: space-between;
           align-items: center;
         }
-
-        .total-section {
-          text-align: left;
-        }
-
         .total-label {
           font-size: 14px;
           color: #666;
           margin: 0 0 4px;
-          font-weight: 600;
           text-transform: uppercase;
         }
-
         .total-value {
           font-size: 28px;
           font-weight: 800;
-          color: #000;
           margin: 0;
         }
-
         .checkout-btn {
           padding: 16px 48px;
           background: #000;
@@ -641,43 +692,28 @@ export default function CartPage() {
           font-size: 16px;
           font-weight: 700;
           cursor: pointer;
-          transition: all 0.2s;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
         }
-
         .checkout-btn:hover {
           background: #333;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
-        /* Continue Shopping */
         .continue-shopping {
           margin-top: 16px;
         }
-
         .continue-btn {
           padding: 12px 24px;
           background: transparent;
-          color: #000;
           border: 2px solid #000;
           border-radius: 8px;
-          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          text-transform: uppercase;
         }
-
         .continue-btn:hover {
           background: #000;
           color: #fff;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         /* FOOTER */
@@ -687,72 +723,23 @@ export default function CartPage() {
           padding: 20px 32px;
           display: flex;
           justify-content: space-between;
-          align-items: center;
           font-size: 13px;
           color: #666;
-          font-weight: 500;
         }
-
-        .footer-left,
-        .footer-right {
+        .footer-left, .footer-right {
           display: flex;
           gap: 24px;
         }
 
-        .footer-right span {
-          cursor: pointer;
-          transition: color 0.2s;
-        }
-
-        .footer-right span:hover {
-          color: #000;
-          text-decoration: underline;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-          .header {
-            flex-wrap: wrap;
-            gap: 16px;
-          }
-          .main-nav {
-            order: 3;
-            width: 100%;
-            justify-content: center;
-          }
-          .cart-item {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          .item-actions {
-            width: 100%;
-            flex-wrap: wrap;
-            justify-content: space-between;
-          }
-          .checkout-card {
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-          }
-          .checkout-btn {
-            width: 100%;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .page-title {
-            font-size: 24px;
-          }
-          .footer {
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-          }
-          .footer-left,
-          .footer-right {
-            flex-wrap: wrap;
-            justify-content: center;
-          }
+          .header { flex-wrap: wrap; }
+          .main-nav { order: 3; width: 100%; justify-content: center; }
+          .cart-item { flex-direction: column; align-items: flex-start; }
+          .item-actions { width: 100%; justify-content: space-between; }
+          .checkout-card { flex-direction: column; text-align: center; gap: 16px; }
+          .note-input-wrapper { flex-direction: column; }
+          .save-note-btn { align-self: flex-start; }
+          .edit-note-wrapper { text-align: left; }
         }
       `}</style>
     </div>

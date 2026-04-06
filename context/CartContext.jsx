@@ -9,6 +9,7 @@ export function CartProvider({ children }) {
   const { data: session } = useSession();
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
+  const [mounted, setMounted] = useState(false);
 
   const loadCart = async () => {
     if (!session?.user?.id) {
@@ -37,6 +38,24 @@ export function CartProvider({ children }) {
     }
 
     try {
+      // 🔥 AMBIL DATA PRODUK (buat cek stok)
+      const productRes = await fetch("/api/product");
+      const products = await productRes.json();
+      const product = products.find(p => p.id === productId);
+
+      if (!product) {
+        return { success: false, error: "Product tidak ditemukan" };
+      }
+
+      // 🔥 CEK QTY DI CART
+      const itemInCart = cartItems.find(item => item.productId === productId);
+      const currentQty = itemInCart ? itemInCart.quantity : 0;
+
+      // 🔥 VALIDASI STOK
+      if (currentQty + quantity > product.stock) {
+        return { success: false, error: "Stock tidak cukup" };
+      }
+
       const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,13 +66,13 @@ export function CartProvider({ children }) {
         await loadCart();
         return { success: true };
       }
+
       return { success: false };
     } catch (error) {
       return { success: false };
     }
   };
 
-  // ✅ TAMBAHKAN FUNGSI INI!
   const removeFromCart = async (cartId) => {
     if (!session?.user?.id) {
       alert("Please login first");
@@ -80,6 +99,22 @@ export function CartProvider({ children }) {
     if (!session?.user?.id) return { success: false };
 
     try {
+      // 🔥 AMBIL ITEM CART
+      const item = cartItems.find(i => i.id === cartId);
+      if (!item) return { success: false };
+
+      // 🔥 AMBIL DATA PRODUK
+      const productRes = await fetch("/api/product");
+      const products = await productRes.json();
+      const product = products.find(p => p.id === item.productId);
+
+      if (!product) return { success: false };
+
+      // 🔥 VALIDASI
+      if (newQuantity > product.stock) {
+        return { success: false, error: "Melebihi stok" };
+      }
+
       const res = await fetch(`/api/cart/${cartId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -90,6 +125,7 @@ export function CartProvider({ children }) {
         await loadCart();
         return { success: true };
       }
+
       return { success: false };
     } catch (error) {
       return { success: false };
@@ -97,8 +133,14 @@ export function CartProvider({ children }) {
   };
 
   useEffect(() => {
-    loadCart();
-  }, [session]);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      loadCart();
+    }
+  }, [session, mounted]);
 
   return (
     <CartContext.Provider
@@ -107,7 +149,7 @@ export function CartProvider({ children }) {
         cartItems,
         loadCart,
         addToCart,
-        removeFromCart, // ✅ WAJIB ADA!
+        removeFromCart,
         updateQuantity,
       }}
     >
