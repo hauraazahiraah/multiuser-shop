@@ -16,7 +16,7 @@ const formatRupiah = (num) => {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, loadCart, cartCount } = useCart();
+  const { cartItems, loadCart, cartCount, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [isHoveringLogout, setIsHoveringLogout] = useState(false);
 
@@ -33,7 +33,7 @@ export default function CheckoutPage() {
     email: "",
     phone: "",
     address: "",
-    shippingMethod: "Delivery Reguler", // default
+    shippingMethod: "Delivery Reguler",
     paymentMethod: "TRANSFER",
   });
 
@@ -46,7 +46,6 @@ export default function CheckoutPage() {
     0
   );
 
-  // Hitung shipping cost berdasarkan metode yang dipilih
   const shippingCost = shippingOptions[formData.shippingMethod]?.cost || 0;
   const total = subtotal + shippingCost;
 
@@ -55,46 +54,65 @@ export default function CheckoutPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!formData.name || !formData.phone || !formData.address) {
-      alert("Nama, nomor HP, dan alamat wajib diisi!");
-      return;
+  if (!formData.name || !formData.phone || !formData.address) {
+    alert("Nama, nomor HP, dan alamat wajib diisi!");
+    return;
+  }
+
+  if (!formData.email) {
+    alert("Email wajib diisi!");
+    return;
+  }
+
+  if (!formData.paymentMethod) {
+    alert("Pilih metode pembayaran!");
+    return;
+  }
+
+  if (cartItems.length === 0) {
+    alert("Keranjang belanja kosong!");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerName: formData.name,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
+        customerAddress: formData.address,
+        shippingMethod: formData.shippingMethod,
+        shippingCost: shippingCost,
+        paymentMethod: formData.paymentMethod,
+        items: cartItems.map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price,
+        })),
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      await clearCart();
+      // ✅ LANGSUNG REDIRECT KE STRUK
+      router.push(`/dashboard/user/order/${data.order.orderNumber}`);
+    } else {
+      alert(data.error || "Checkout gagal");
     }
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          subtotal,
-          shippingCost,
-          total,
-          items: cartItems.map((item) => ({
-            productId: item.product.id,
-            quantity: item.quantity,
-            price: item.product.price,
-            subtotal: item.product.price * item.quantity,
-          })),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        // Redirect ke halaman struk
-        router.push(`/dashboard/user/order/${data.orderNumber}`);
-      } else {
-        alert(data.error || "Checkout gagal");
-      }
-    } catch (error) {
-      alert("Terjadi kesalahan");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    console.error("Checkout error:", error);
+    alert("Terjadi kesalahan saat checkout");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: "/auth/login" });
@@ -234,7 +252,9 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Email</label>
+                  <label className="form-label">
+                    Email <span className="required">*</span>
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -242,6 +262,7 @@ export default function CheckoutPage() {
                     onChange={handleInputChange}
                     placeholder="john@example.com"
                     className="form-input"
+                    required
                   />
                 </div>
 
@@ -411,149 +432,6 @@ export default function CheckoutPage() {
           flex-direction: column;
         }
 
-        /* Header */
-        .header {
-          background: #fff;
-          border-bottom: 2px solid #000;
-          padding: 16px 32px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: sticky;
-          top: 0;
-          z-index: 50;
-        }
-
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          cursor: pointer;
-        }
-
-        .logo {
-          width: 44px;
-          height: 44px;
-          background: #000;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          font-weight: 800;
-          font-size: 20px;
-          letter-spacing: 1px;
-        }
-
-        .brand {
-          font-size: 20px;
-          font-weight: 800;
-          color: #000;
-          margin: 0;
-          letter-spacing: -0.3px;
-        }
-
-        .main-nav {
-          display: flex;
-          gap: 8px;
-          background: #f5f5f5;
-          padding: 4px;
-          border-radius: 40px;
-          border: 1px solid #000;
-        }
-
-        .nav-link {
-          padding: 10px 24px;
-          background: transparent;
-          color: #000;
-          border: none;
-          border-radius: 30px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .nav-link:hover {
-          background: #eaeaea;
-        }
-
-        .nav-link.active {
-          background: #000;
-          color: #fff;
-        }
-
-        .header-right {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .cart-icon {
-          position: relative;
-          padding: 10px;
-          background: #f5f5f5;
-          border: 1px solid #000;
-          border-radius: 10px;
-          cursor: pointer;
-          font-size: 20px;
-        }
-
-        .cart-badge {
-          position: absolute;
-          top: -5px;
-          right: -5px;
-          background: #000;
-          color: #fff;
-          font-size: 10px;
-          font-weight: 700;
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .logout-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 20px;
-          background: transparent;
-          color: #000;
-          border: 2px solid #000;
-          border-radius: 10px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .logout-btn:hover {
-          background: #000;
-          color: #fff;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .avatar {
-          width: 40px;
-          height: 40px;
-          background: #000;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          font-weight: 700;
-          font-size: 16px;
-          cursor: pointer;
-        }
-
-        /* Main content */
         .content {
           flex: 1;
           padding: 40px 32px;
@@ -604,7 +482,6 @@ export default function CheckoutPage() {
           gap: 32px;
         }
 
-        /* Form section */
         .form-section {
           background: #fff;
           border: 2px solid #000;
@@ -748,7 +625,6 @@ export default function CheckoutPage() {
           cursor: not-allowed;
         }
 
-        /* Sidebar */
         .sidebar {
           position: sticky;
           top: 100px;
@@ -866,36 +742,6 @@ export default function CheckoutPage() {
           box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* Footer */
-        .footer {
-          background: #fff;
-          border-top: 2px solid #000;
-          padding: 20px 32px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 13px;
-          color: #666;
-          font-weight: 500;
-        }
-
-        .footer-left,
-        .footer-right {
-          display: flex;
-          gap: 24px;
-        }
-
-        .footer-right span {
-          cursor: pointer;
-          transition: color 0.2s;
-        }
-
-        .footer-right span:hover {
-          color: #000;
-          text-decoration: underline;
-        }
-
-        /* Responsive */
         @media (max-width: 1024px) {
           .checkout-grid {
             grid-template-columns: 1fr;
@@ -906,15 +752,6 @@ export default function CheckoutPage() {
         }
 
         @media (max-width: 768px) {
-          .header {
-            flex-wrap: wrap;
-            gap: 16px;
-          }
-          .main-nav {
-            order: 3;
-            width: 100%;
-            justify-content: center;
-          }
           .content {
             padding: 20px;
           }
@@ -927,23 +764,13 @@ export default function CheckoutPage() {
           .page-title {
             font-size: 24px;
           }
-          .footer {
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-          }
-          .footer-left,
-          .footer-right {
-            flex-wrap: wrap;
-            justify-content: center;
-          }
         }
       `}</style>
     </div>
   );
 }
 
-// Header Component (reused from user pages)
+// Header Component
 function Header({ router, cartCount, handleLogout, isHoveringLogout, setIsHoveringLogout }) {
   return (
     <header className="header">
@@ -1012,14 +839,12 @@ function Header({ router, cartCount, handleLogout, isHoveringLogout, setIsHoveri
           color: #fff;
           font-weight: 800;
           font-size: 20px;
-          letter-spacing: 1px;
         }
         .brand {
           font-size: 20px;
           font-weight: 800;
           color: #000;
           margin: 0;
-          letter-spacing: -0.3px;
         }
         .main-nav {
           display: flex;
@@ -1040,14 +865,9 @@ function Header({ router, cartCount, handleLogout, isHoveringLogout, setIsHoveri
           cursor: pointer;
           transition: all 0.2s;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
         }
         .nav-link:hover {
           background: #eaeaea;
-        }
-        .nav-link.active {
-          background: #000;
-          color: #fff;
         }
         .header-right {
           display: flex;
@@ -1095,8 +915,6 @@ function Header({ router, cartCount, handleLogout, isHoveringLogout, setIsHoveri
         .logout-btn:hover {
           background: #000;
           color: #fff;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .avatar {
           width: 40px;
@@ -1108,8 +926,18 @@ function Header({ router, cartCount, handleLogout, isHoveringLogout, setIsHoveri
           justify-content: center;
           color: #fff;
           font-weight: 700;
-          font-size: 16px;
           cursor: pointer;
+        }
+        @media (max-width: 768px) {
+          .header {
+            flex-wrap: wrap;
+            gap: 16px;
+          }
+          .main-nav {
+            order: 3;
+            width: 100%;
+            justify-content: center;
+          }
         }
       `}</style>
     </header>

@@ -38,7 +38,6 @@ export function CartProvider({ children }) {
     }
 
     try {
-      // 🔥 AMBIL DATA PRODUK (buat cek stok)
       const productRes = await fetch("/api/product");
       const products = await productRes.json();
       const product = products.find(p => p.id === productId);
@@ -47,11 +46,9 @@ export function CartProvider({ children }) {
         return { success: false, error: "Product tidak ditemukan" };
       }
 
-      // 🔥 CEK QTY DI CART
       const itemInCart = cartItems.find(item => item.productId === productId);
       const currentQty = itemInCart ? itemInCart.quantity : 0;
 
-      // 🔥 VALIDASI STOK
       if (currentQty + quantity > product.stock) {
         return { success: false, error: "Stock tidak cukup" };
       }
@@ -99,18 +96,15 @@ export function CartProvider({ children }) {
     if (!session?.user?.id) return { success: false };
 
     try {
-      // 🔥 AMBIL ITEM CART
       const item = cartItems.find(i => i.id === cartId);
       if (!item) return { success: false };
 
-      // 🔥 AMBIL DATA PRODUK
       const productRes = await fetch("/api/product");
       const products = await productRes.json();
       const product = products.find(p => p.id === item.productId);
 
       if (!product) return { success: false };
 
-      // 🔥 VALIDASI
       if (newQuantity > product.stock) {
         return { success: false, error: "Melebihi stok" };
       }
@@ -129,6 +123,24 @@ export function CartProvider({ children }) {
       return { success: false };
     } catch (error) {
       return { success: false };
+    }
+  };
+
+  // ✅ FUNGSI BARU: Hapus semua item di keranjang (setelah checkout sukses)
+  const clearCart = async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      const res = await fetch("/api/cart/clear", {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setCartItems([]);
+        setCartCount(0);
+      }
+    } catch (error) {
+      console.error("Failed to clear cart:", error);
     }
   };
 
@@ -151,6 +163,7 @@ export function CartProvider({ children }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        clearCart, // ✅ ekspor clearCart
       }}
     >
       {children}

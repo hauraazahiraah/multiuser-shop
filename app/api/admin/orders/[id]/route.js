@@ -1,64 +1,87 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from "../../../auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 
-// ✅ TAMBAHAN PATCH (UPDATE STATUS)
-export async function PATCH(req, context) {
+// GET - ambil detail order
+export async function GET(request, { params }) {
   try {
-    const { id } = await context.params;
-    const orderId = Number(id);
-
-    if (isNaN(orderId)) {
-      return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role?.toLowerCase() !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
-
-    const updatedOrder = await prisma.order.update({
-      where: { id: orderId },
-      data: {
-        paymentStatus: body.status,
-      },
-    });
-
-    return NextResponse.json(updatedOrder);
-  } catch (error) {
-    console.error("Patch error:", error);
-    return NextResponse.json(
-      { error: "Failed to update status" },
-      { status: 500 }
-    );
-  }
-}
-
-// ✅ DELETE LU TETAP UTUH
-export async function DELETE(req, { params }) {
-  try {
     const { id } = await params;
-    const orderId = Number(id);
-
-    if (isNaN(orderId)) {
-      return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
-    }
-
     const order = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: { id: parseInt(id) },
+      include: {
+        user: true,
+        items: { include: { product: true } }
+      }
     });
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error("Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// PATCH - update status pembayaran dan pengiriman
+export async function PATCH(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role?.toLowerCase() !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { paymentStatus, deliveryStatus } = body;
+
+    const updateData = {};
+    if (paymentStatus) updateData.paymentStatus = paymentStatus;
+    if (deliveryStatus) updateData.deliveryStatus = deliveryStatus;
+    // ❌ HAPUS BARIS INI: if (paymentStatus === "PAID") updateData.paymentDate = new Date();
+
+    const updated = await prisma.order.update({
+      where: { id: parseInt(id) },
+      data: updateData
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error("Error updating order:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// DELETE - hapus order
+export async function DELETE(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role?.toLowerCase() !== 'admin') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const orderId = parseInt(id);
+
     await prisma.orderItem.deleteMany({
-      where: { orderId: orderId },
+      where: { orderId: orderId }
     });
 
     await prisma.order.delete({
-      where: { id: orderId },
+      where: { id: orderId }
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Delete error:", error);
-    return NextResponse.json({ error: "Failed to delete order" }, { status: 500 });
+    console.error("Error deleting order:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

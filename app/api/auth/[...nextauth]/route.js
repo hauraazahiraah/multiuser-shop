@@ -29,17 +29,19 @@ export const authOptions = {
           throw new Error("Wrong password");
         }
 
-        // ✅ LOG UNTUK DEBUG
+        // ✅ PASTIKAN ROLE DALAM FORMAT LOWERCASE
+        const userRole = (user.role || 'user').toLowerCase();
+        
         console.log("🔐 LOGIN SUCCESS:", { 
           email: user.email, 
-          role: user.role 
+          role: userRole 
         });
 
         return {
           id: user.id.toString(),
           email: user.email,
           name: user.name,
-          role: user.role, // ← HARUS "ADMIN"
+          role: userRole, // ← FORMAT LOWERCASE
         };
       }
     })
@@ -48,16 +50,16 @@ export const authOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
-        console.log("🎫 JWT TOKEN:", token);
+        token.role = user.role; // ← LOWERCASE
+        console.log("🎫 JWT TOKEN SET:", { id: token.id, role: token.role });
       }
       return token;
     },
     async session({ session, token }) {
       if (session?.user) {
         session.user.id = token.id;
-        session.user.role = token.role;
-        console.log("🍪 SESSION:", session);
+        session.user.role = token.role; // ← LOWERCASE
+        console.log("🍪 SESSION SET:", { id: session.user.id, role: session.user.role });
       }
       return session;
     }
@@ -70,6 +72,8 @@ export const authOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
+  // TAMBAHKAN INI UNTUK DEBUG
+  debug: true,
 };
 
 const handler = NextAuth(authOptions);

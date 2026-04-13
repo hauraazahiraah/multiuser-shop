@@ -3,10 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
 
-// ✅ FORCE DYNAMIC - TIDAK ADA CACHE
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export async function GET(request, { params }) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +13,6 @@ export async function GET(request, { params }) {
     const { orderNumber } = await params;
     const userId = parseInt(session.user.id);
 
-    // ✅ AMBIL DATA LANGSUNG DARI DATABASE (TANPA CACHE)
     const order = await prisma.order.findFirst({
       where: {
         orderNumber: orderNumber,
@@ -35,9 +30,6 @@ export async function GET(request, { params }) {
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
-
-    // ✅ LOG UNTUK DEBUG
-    console.log("📦 API USER - Order:", order.orderNumber, "Status:", order.paymentStatus, order.deliveryStatus);
 
     return NextResponse.json(order);
   } catch (error) {

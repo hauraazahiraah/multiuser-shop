@@ -737,3 +737,279 @@
     font-size: 3rem;
   }
 }
+
+/* ========== ORDERS LIST (HISTORY) ========== */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #eef2f6;
+  border-radius: 20px;
+  padding: 16px 20px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.order-card:hover {
+  border-color: #000;
+  transform: translateX(4px);
+}
+
+.order-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-number {
+  font-weight: 800;
+  color: #000;
+  font-size: 14px;
+}
+
+.order-date {
+  font-size: 12px;
+  color: #666;
+}
+
+.order-card-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.order-total {
+  font-weight: 700;
+  color: #000;
+}
+
+.order-status {
+  padding: 4px 10px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.order-status.paid {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.order-status.waiting {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.order-arrow {
+  font-size: 18px;
+  color: #000;
+}
+
+/* ========== RECEIPT / STRUK ========== */
+.receipt-wrapper {
+  flex: 1;
+  padding: 40px 20px;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.receipt-card {
+  max-width: 500px;
+  width: 100%;
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid #eef2f6;
+}
+
+.receipt-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.receipt-header h2 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: 1px;
+}
+
+.receipt-header p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: #555;
+}
+
+.divider {
+  height: 1px;
+  background: #eee;
+  margin: 16px 0;
+}
+
+.receipt-info {
+  margin-bottom: 16px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.info-row span:first-child {
+  color: #666;
+}
+
+.status-paid {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.status-waiting {
+  background: #fff3e0;
+  color: #e65100;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.receipt-items {
+  margin: 16px 0;
+}
+
+.items-header {
+  display: grid;
+  grid-template-columns: 2fr 0.5fr 1fr 1fr;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 2fr 0.5fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #000;
+}
+
+.receipt-total {
+  margin: 16px 0;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.grand-total {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  font-size: 16px;
+}
+
+.receipt-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #666;
+}
+
+.back-button {
+  background: transparent;
+  border: 1px solid #000;
+  padding: 10px 24px;
+  border-radius: 40px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-button:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* Receipt wrapper - memungkinkan scroll vertikal */
+.receipt-wrapper {
+  flex: 1;
+  padding: 40px 20px;
+  background: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.receipt-card {
+  max-width: 500px;
+  width: 100%;
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px 24px;
+  border: 1px solid #eef2f6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+/* Agar item row tidak overflow */
+.item-row {
+  display: grid;
+  grid-template-columns: 2fr 0.5fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.items-header {
+  display: grid;
+  grid-template-columns: 2fr 0.5fr 1fr 1fr;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.grand-total {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+  font-size: 16px;
+}
+
+/* Pastikan total tidak Rp 0 */
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}

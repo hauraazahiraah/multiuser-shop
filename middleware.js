@@ -3,6 +3,11 @@ import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request) {
   const path = request.nextUrl.pathname;
+  
+  // IZINKAN AKSES KE HALAMAN LOGIN
+  if (path === '/auth/login') {
+    return NextResponse.next();
+  }
 
   const token = await getToken({
     req: request,
@@ -11,19 +16,23 @@ export async function middleware(request) {
 
   // Kalau akses dashboard tapi belum login
   if (path.startsWith('/dashboard') && !token) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('callbackUrl', path);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // ADMIN ONLY
+  // ADMIN ONLY - PAKAI LOWERCASE (match dengan database)
   if (path.startsWith('/dashboard/admin')) {
-    if (token?.role !== 'ADMIN') {
+    // Cek role lowercase 'admin'
+    if (token?.role?.toLowerCase() !== 'admin') {
       return NextResponse.redirect(new URL('/dashboard/user', request.url));
     }
   }
 
-  // USER ONLY
+  // USER ONLY - PAKAI LOWERCASE
   if (path.startsWith('/dashboard/user')) {
-    if (token?.role !== 'USER') {
+    // Cek role lowercase 'user'
+    if (token?.role?.toLowerCase() !== 'user') {
       return NextResponse.redirect(new URL('/dashboard/admin', request.url));
     }
   }

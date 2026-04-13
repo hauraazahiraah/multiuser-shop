@@ -1,45 +1,77 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
+import { useCart } from "@/context/CartContext";
+import Link from "next/link";
 
-const formatRupiah = (num) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(num || 0);
-};
-
-export default function HistoryPage() {
+export default function UserHistoryPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const { cartCount } = useCart();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isHoveringLogout, setIsHoveringLogout] = useState(false);
+  const [isHoveringProfile, setIsHoveringProfile] = useState(false);
 
-  const loadOrders = async () => {
+  const userInitial = session?.user?.name?.charAt(0)?.toUpperCase() || "U";
+  const userName = session?.user?.name || "User";
+  const userEmail = session?.user?.email || "";
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
     try {
-      const res = await fetch("/api/order/history");
-      if (res.ok) {
-        const data = await res.json();
-        setOrders(data);
-      } else {
-        // Jika gagal, tetap set array kosong tanpa console error
-        setOrders([]);
-      }
+      const res = await fetch("/api/orders/user");
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : []);
     } catch (error) {
-      // Tangkap error tapi tidak tampilkan di console
+      console.error("Error:", error);
       setOrders([]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
+  const formatRupiah = (amount) => {
+    return new Intl.NumberFormat("id-ID").format(amount || 0);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const getPaymentStatus = (status) => {
+    switch (status) {
+      case "PAID":
+        return { text: "LUNAS", color: "#2e7d32", bg: "#e8f5e9" };
+      case "CANCELLED":
+        return { text: "BATAL", color: "#c62828", bg: "#ffebee" };
+      default:
+        return { text: "PENDING", color: "#e65100", bg: "#fff3e0" };
+    }
+  };
+
+  const getDeliveryStatus = (status) => {
+    switch (status) {
+      case "SHIPPED":
+        return { text: "🚚 SEDANG DIANTAR", color: "#1565c0", bg: "#e3f2fd" };
+      case "DELIVERED":
+        return { text: "✅ PESANAN DITERIMA", color: "#2e7d32", bg: "#e8f5e9" };
+      case "PICKED_UP":
+        return { text: "🏪 DIAMBIL PEMBELI", color: "#6a1b9a", bg: "#f3e5f5" };
+      default:
+        return { text: "⏳ MENUNGGU", color: "#e65100", bg: "#fff3e0" };
+    }
+  };
 
   const handleLogout = async () => {
     await signOut({ redirect: true, callbackUrl: "/auth/login" });
@@ -47,575 +79,137 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading history...</p>
-        <style jsx>{`
-          .loading-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          }
-          .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #eaeaea;
-            border-top: 4px solid #000;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
-          }
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          p {
-            color: #666;
-            font-weight: 500;
-          }
-        `}</style>
+      <div style={{ padding: "50px", textAlign: "center", background: "#fff", minHeight: "100vh" }}>
+        <p>Loading orders...</p>
       </div>
     );
   }
 
   return (
-    <div className="history-page">
-      {/* Header */}
-      <header className="header">
-        <div className="header-left" onClick={() => router.push("/dashboard/user")}>
-          <div className="logo">SS</div>
-          <h1 className="brand">Serein Space</h1>
+    <div style={{ background: "#fff", minHeight: "100vh" }}>
+      {/* HEADER SAMA PERSIS DENGAN PRODUCTS */}
+      <header style={{
+        background: "#fff",
+        borderBottom: "2px solid #000",
+        padding: "16px 32px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        position: "sticky",
+        top: 0,
+        zIndex: 50
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }} onClick={() => router.push("/dashboard/user")}>
+          <div style={{
+            width: "44px",
+            height: "44px",
+            background: "#000",
+            borderRadius: "12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#fff",
+            fontWeight: 800,
+            fontSize: "20px"
+          }}>SS</div>
+          <h1 style={{ fontSize: "20px", fontWeight: 800, color: "#000", margin: 0 }}>Serein Space</h1>
         </div>
 
-        <nav className="main-nav">
-          <button
-            className="nav-link"
-            onClick={() => router.push("/dashboard/user")}
-          >
-            Home
-          </button>
-          <button
-            className="nav-link"
-            onClick={() => router.push("/dashboard/user/products")}
-          >
-            Products
-          </button>
-          <button
-            className="nav-link active"
-            onClick={() => router.push("/dashboard/user/history")}
-          >
-            Orders
-          </button>
+        <nav style={{ display: "flex", gap: "8px", background: "#f5f5f5", padding: "4px", borderRadius: "40px", border: "1px solid #000" }}>
+          <button style={{ padding: "10px 24px", background: "transparent", border: "none", borderRadius: "30px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }} onClick={() => router.push("/dashboard/user")}>Home</button>
+          <button style={{ padding: "10px 24px", background: "transparent", border: "none", borderRadius: "30px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }} onClick={() => router.push("/dashboard/user/products")}>Products</button>
+          <button style={{ padding: "10px 24px", background: "#000", color: "#fff", border: "none", borderRadius: "30px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }} onClick={() => router.push("/dashboard/user/history")}>Orders</button>
         </nav>
 
-        <div className="header-right">
-          {/* Logout Button */}
-          <button
-            className="logout-btn"
-            onMouseEnter={() => setIsHoveringLogout(true)}
-            onMouseLeave={() => setIsHoveringLogout(false)}
-            onClick={handleLogout}
-          >
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ position: "relative", padding: "10px", background: "#f5f5f5", border: "1px solid #000", borderRadius: "10px", cursor: "pointer" }} onClick={() => router.push("/dashboard/user/cart")}>
+            <span>🛒</span>
+            {cartCount > 0 && <span style={{ position: "absolute", top: "-5px", right: "-5px", background: "#000", color: "#fff", fontSize: "10px", fontWeight: 700, width: "18px", height: "18px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>{cartCount}</span>}
+          </div>
+
+          <button style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 20px", background: "transparent", border: "2px solid #000", borderRadius: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }} onMouseEnter={() => setIsHoveringLogout(true)} onMouseLeave={() => setIsHoveringLogout(false)} onClick={handleLogout}>
             <span>🚪</span>
             <span>Logout</span>
           </button>
-          <div className="avatar">U</div>
+
+          <div style={{ position: "relative" }} onMouseEnter={() => setIsHoveringProfile(true)} onMouseLeave={() => setIsHoveringProfile(false)}>
+            <div style={{ width: "40px", height: "40px", background: "#000", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, cursor: "pointer" }}>{userInitial}</div>
+            {isHoveringProfile && (
+              <div style={{ position: "absolute", top: "50px", right: 0, background: "#fff", border: "2px solid #000", borderRadius: "12px", padding: "12px 16px", minWidth: "180px", zIndex: 100 }}>
+                <p style={{ fontWeight: 700, margin: "0 0 4px" }}>{userName}</p>
+                <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>{userEmail}</p>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="content">
-        <div className="container">
-          {/* Breadcrumb */}
-          <div className="breadcrumb">
-            <span onClick={() => router.push("/dashboard/user")}>Dashboard</span>
-            <span>/</span>
-            <span className="current">Order History</span>
-          </div>
-
-          {/* Page Title */}
-          <div className="page-header">
-            <h2 className="page-title">ORDER HISTORY</h2>
-            <p className="page-subtitle">Your past transactions</p>
-          </div>
-
-          {orders.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📭</div>
-              <h3>No transactions yet</h3>
-              <p>Start shopping to see your order history</p>
-              <button
-                className="primary-btn"
-                onClick={() => router.push("/dashboard/user/products")}
-              >
-                Browse Products
-              </button>
-            </div>
-          ) : (
-            <div className="orders-list">
-              {orders.map((order) => (
-                <div key={order.id} className="order-card">
-                  <div className="order-header">
-                    <div className="order-number">
-                      <span className="label">Order Number</span>
-                      <span className="value">{order.orderNumber}</span>
-                    </div>
-                    <div className="order-total">
-                      <span className="label">Total</span>
-                      <span className="value">{formatRupiah(order.total)}</span>
-                    </div>
-                  </div>
-                  <div className="order-body">
-                    <div className="order-date">
-                      {new Date(order.createdAt).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </div>
-                    <div className="order-status">
-                      <span className={`status-badge ${order.paymentStatus?.toLowerCase()}`}>
-                        {order.paymentStatus || "PENDING"}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    className="detail-btn"
-                    onClick={() => router.push(`/dashboard/user/orders/${order.id}`)}
-                  >
-                    View Details →
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+      {/* MAIN CONTENT */}
+      <main style={{ maxWidth: "800px", margin: "0 auto", padding: "32px 24px" }}>
+        <div style={{ marginBottom: "32px" }}>
+          <h1 style={{ fontSize: "28px", fontWeight: 800, color: "#000", margin: "0 0 8px", letterSpacing: "-0.5px" }}>ORDER HISTORY</h1>
+          <p style={{ fontSize: "14px", color: "#888", margin: 0 }}>Your past transactions</p>
         </div>
+
+        {orders.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 20px", border: "2px solid #000", borderRadius: "20px" }}>
+            <div style={{ fontSize: "48px", marginBottom: "16px" }}>📦</div>
+            <h3 style={{ fontSize: "18px", marginBottom: "8px" }}>No orders yet</h3>
+            <p style={{ color: "#888", marginBottom: "24px" }}>Start shopping to see your orders here</p>
+            <button style={{ padding: "12px 24px", background: "#000", color: "#fff", border: "none", borderRadius: "8px", fontWeight: 600, cursor: "pointer" }} onClick={() => router.push("/dashboard/user/products")}>Browse Products</button>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            {orders.map((order) => {
+              const payment = getPaymentStatus(order.paymentStatus);
+              const delivery = getDeliveryStatus(order.deliveryStatus);
+              return (
+                <div key={order.id} style={{ border: "2px solid #000", borderRadius: "16px", padding: "20px", background: "#fff" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
+                    <div>
+                      <div style={{ fontSize: "11px", fontWeight: 600, color: "#999", letterSpacing: "0.5px", marginBottom: "4px" }}>ORDER NUMBER</div>
+                      <div style={{ fontWeight: 700, fontSize: "16px", fontFamily: "monospace" }}>{order.orderNumber}</div>
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#888" }}>{formatDate(order.createdAt)}</div>
+                  </div>
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <div style={{ fontSize: "11px", fontWeight: 600, color: "#999", marginBottom: "4px" }}>TOTAL</div>
+                    <div style={{ fontSize: "22px", fontWeight: 700, color: "#000" }}>Rp {formatRupiah(order.total)}</div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
+                    <div>
+                      <div style={{ fontSize: "11px", fontWeight: 600, color: "#999", marginBottom: "4px" }}>STATUS PEMBAYARAN</div>
+                      <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: 600, background: payment.bg, color: payment.color }}>{payment.text}</span>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "11px", fontWeight: 600, color: "#999", marginBottom: "4px" }}>STATUS PENGIRIMAN</div>
+                      <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: 600, background: delivery.bg, color: delivery.color }}>{delivery.text}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ borderTop: "1px solid #eee", paddingTop: "16px" }}>
+                    <Link href={`/dashboard/user/order/${order.orderNumber}`} style={{ fontSize: "13px", fontWeight: 600, color: "#000", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      VIEW DETAILS →
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </main>
 
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-left">
-          <span>© 2026 Serein Space. All rights reserved.</span>
-          <span>v1.0.0</span>
-        </div>
-        <div className="footer-right">
-          <span>Privacy Policy</span>
-          <span>Terms of Service</span>
-          <span>Help</span>
+      {/* FOOTER */}
+      <footer style={{ background: "#fff", borderTop: "2px solid #000", padding: "20px 32px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: "#666", marginTop: "40px" }}>
+        <div>© 2026 Serein Space. All rights reserved. v1.0.0</div>
+        <div style={{ display: "flex", gap: "24px" }}>
+          <span style={{ cursor: "pointer" }}>Privacy Policy</span>
+          <span style={{ cursor: "pointer" }}>Terms of Service</span>
+          <span style={{ cursor: "pointer" }}>Help</span>
         </div>
       </footer>
-
-      <style jsx>{`
-        .history-page {
-          min-height: 100vh;
-          background: #fff;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          display: flex;
-          flex-direction: column;
-        }
-
-        /* HEADER */
-        .header {
-          background: #fff;
-          border-bottom: 2px solid #000;
-          padding: 16px 32px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: sticky;
-          top: 0;
-          z-index: 50;
-        }
-
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          cursor: pointer;
-        }
-
-        .logo {
-          width: 44px;
-          height: 44px;
-          background: #000;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          font-weight: 800;
-          font-size: 20px;
-          letter-spacing: 1px;
-        }
-
-        .brand {
-          font-size: 20px;
-          font-weight: 800;
-          color: #000;
-          margin: 0;
-          letter-spacing: -0.3px;
-        }
-
-        .main-nav {
-          display: flex;
-          gap: 8px;
-          background: #f5f5f5;
-          padding: 4px;
-          border-radius: 40px;
-          border: 1px solid #000;
-        }
-
-        .nav-link {
-          padding: 10px 24px;
-          background: transparent;
-          color: #000;
-          border: none;
-          border-radius: 30px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .nav-link:hover {
-          background: #eaeaea;
-        }
-
-        .nav-link.active {
-          background: #000;
-          color: #fff;
-        }
-
-        .header-right {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .logout-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 20px;
-          background: transparent;
-          color: #000;
-          border: 2px solid #000;
-          border-radius: 10px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .logout-btn:hover {
-          background: #000;
-          color: #fff;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .avatar {
-          width: 40px;
-          height: 40px;
-          background: #000;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-          font-weight: 700;
-          font-size: 16px;
-          cursor: pointer;
-        }
-
-        /* MAIN CONTENT */
-        .content {
-          flex: 1;
-          padding: 40px 32px;
-          background: #fafafa;
-        }
-
-        .container {
-          max-width: 800px;
-          margin: 0 auto;
-        }
-
-        /* Breadcrumb */
-        .breadcrumb {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 24px;
-          font-size: 14px;
-          color: #666;
-          font-weight: 500;
-        }
-
-        .breadcrumb span {
-          cursor: pointer;
-          transition: color 0.2s;
-        }
-
-        .breadcrumb span:hover {
-          color: #000;
-        }
-
-        .breadcrumb .current {
-          color: #000;
-          font-weight: 700;
-        }
-
-        /* Page Header */
-        .page-header {
-          margin-bottom: 32px;
-        }
-
-        .page-title {
-          font-size: 28px;
-          font-weight: 800;
-          color: #000;
-          margin: 0 0 8px;
-          letter-spacing: -0.5px;
-          text-transform: uppercase;
-        }
-
-        .page-subtitle {
-          font-size: 16px;
-          color: #666;
-          margin: 0;
-          font-weight: 500;
-        }
-
-        /* Empty State */
-        .empty-state {
-          text-align: center;
-          padding: 60px 40px;
-          background: #fff;
-          border: 2px solid #000;
-          border-radius: 20px;
-        }
-
-        .empty-icon {
-          font-size: 64px;
-          margin-bottom: 24px;
-        }
-
-        .empty-state h3 {
-          font-size: 20px;
-          font-weight: 700;
-          color: #000;
-          margin: 0 0 8px;
-        }
-
-        .empty-state p {
-          font-size: 16px;
-          color: #666;
-          margin: 0 0 24px;
-          font-weight: 500;
-        }
-
-        .primary-btn {
-          padding: 12px 32px;
-          background: #000;
-          color: #fff;
-          border: 2px solid #000;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .primary-btn:hover {
-          background: #333;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        /* Orders List */
-        .orders-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .order-card {
-          background: #fff;
-          border: 2px solid #000;
-          border-radius: 16px;
-          padding: 20px;
-          transition: all 0.2s;
-        }
-
-        .order-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-
-        .order-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 12px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid #000;
-        }
-
-        .order-number, .order-total {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .order-number .label, .order-total .label {
-          font-size: 11px;
-          font-weight: 600;
-          color: #666;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 4px;
-        }
-
-        .order-number .value {
-          font-size: 16px;
-          font-weight: 700;
-          color: #000;
-        }
-
-        .order-total .value {
-          font-size: 18px;
-          font-weight: 800;
-          color: #000;
-        }
-
-        .order-body {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-
-        .order-date {
-          font-size: 14px;
-          color: #666;
-          font-weight: 500;
-        }
-
-        .status-badge {
-          display: inline-block;
-          padding: 4px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: uppercase;
-          border: 2px solid #000;
-        }
-
-        .status-badge.paid {
-          background: #000;
-          color: #fff;
-        }
-
-        .status-badge.pending {
-          background: #fff;
-          color: #000;
-        }
-
-        .status-badge.cancelled {
-          background: #fff;
-          color: #000;
-          border-color: #000;
-        }
-
-        .detail-btn {
-          width: 100%;
-          padding: 12px;
-          background: #000;
-          color: #fff;
-          border: 2px solid #000;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .detail-btn:hover {
-          background: #333;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        /* FOOTER */
-        .footer {
-          background: #fff;
-          border-top: 2px solid #000;
-          padding: 20px 32px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 13px;
-          color: #666;
-          font-weight: 500;
-        }
-
-        .footer-left,
-        .footer-right {
-          display: flex;
-          gap: 24px;
-        }
-
-        .footer-right span {
-          cursor: pointer;
-          transition: color 0.2s;
-        }
-
-        .footer-right span:hover {
-          color: #000;
-          text-decoration: underline;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-          .header {
-            flex-wrap: wrap;
-            gap: 16px;
-          }
-          .main-nav {
-            order: 3;
-            width: 100%;
-            justify-content: center;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .page-title {
-            font-size: 24px;
-          }
-          .order-header {
-            flex-direction: column;
-            gap: 12px;
-          }
-          .footer {
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-          }
-          .footer-left,
-          .footer-right {
-            flex-wrap: wrap;
-            justify-content: center;
-          }
-        }
-      `}</style>
     </div>
   );
 }
